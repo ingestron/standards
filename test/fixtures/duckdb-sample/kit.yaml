@@ -1,0 +1,11 @@
+id: duckdb/sample
+version: 2026-11-10
+title: Sample on DuckDB
+summary: A small synthetic kit that tests the repository checks.
+packs: [duckdb@2]
+features: ga
+requires: { ingestron: ">=2.4.0" }
+maintainers: [ingestron]
+replaces: null
+notes: |
+  First version.

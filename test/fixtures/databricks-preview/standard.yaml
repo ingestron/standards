@@ -1,0 +1,10 @@
+apiVersion: ingestron.io/v1
+kind: Standard
+id: preview-demo
+packs: [databricks@2]
+features: ga
+origin:
+  standard: databricks/preview-demo
+  version: 2026-11-10
+operations:
+  alerts: { on: [failure, slow], slow_after: 1h }

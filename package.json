@@ -1,0 +1,24 @@
+{
+  "name": "@ingestron/standards",
+  "version": "1.0.0",
+  "description": "Ingestron's dated standards (kits): small projects to start from, each checked against the packs.",
+  "license": "Apache-2.0",
+  "author": "Ingestron <hello@ingestron.io>",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "files": [
+    "kits",
+    "index.json"
+  ],
+  "scripts": {
+    "check": "node scripts/check-kits.mjs",
+    "index": "node scripts/index.mjs",
+    "test": "node --test"
+  },
+  "devDependencies": {
+    "@ingestron/cli": "^2.3.0",
+    "@ingestron/core": "^1.1.0"
+  }
+}

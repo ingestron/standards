@@ -1,0 +1,13 @@
+apiVersion: ingestron.io/v1
+kind: Standard
+id: sample
+packs: [duckdb@2]
+features: ga
+origin:
+  standard: duckdb/sample
+  version: 2026-11-10
+layers:
+  - { name: bronze, history: none }
+ingest:
+  settings:
+    duckdb-files: { format: csv }

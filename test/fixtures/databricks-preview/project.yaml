@@ -1,0 +1,14 @@
+# A synthetic project for the repository tests.
+id: preview_demo
+values:
+  # Where the source files land: a Unity Catalog volume, such as /Volumes/main/landing/shop
+  landing: x
+environments:
+  dev: {}
+  prod: {}
+imports:
+  - standard.yaml
+  - platform.yaml
+  - connections/*.yaml
+  - flows/*.yaml
+  - contracts/*.yaml

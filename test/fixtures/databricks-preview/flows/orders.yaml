@@ -1,0 +1,11 @@
+apiVersion: ingestron.io/v1
+kind: Flow
+id: orders
+source: shop
+tables:
+  orders:
+    # The source object: a folder under the connection's path
+    object: x
+    contract: shop.orders
+ingest:
+  uses: files # the route's ingest method; a table may choose another

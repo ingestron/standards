@@ -1,0 +1,3 @@
+apiVersion: ingestron.io/v1
+kind: Platform
+id: platform

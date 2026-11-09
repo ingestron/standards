@@ -1,0 +1,11 @@
+id: databricks/preview-demo
+version: 2026-11-10
+title: Preview demo on Databricks
+summary: A small synthetic kit that uses a feature still in preview.
+packs: [databricks@2]
+features: ga
+requires: { ingestron: ">=2.4.0" }
+maintainers: [ingestron]
+replaces: null
+notes: |
+  First version.

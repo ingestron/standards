@@ -1,0 +1,11 @@
+apiVersion: v3.1.0
+kind: DataContract
+id: shop.orders
+version: 1.0.0
+status: active
+schema:
+  - name: orders
+    logicalType: object
+    properties:
+      - { name: order_id, logicalType: integer, required: true, primaryKey: true }
+      - { name: amount, logicalType: number }

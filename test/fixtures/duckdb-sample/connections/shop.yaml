@@ -1,0 +1,7 @@
+apiVersion: ingestron.io/v1
+kind: Connection
+id: shop
+connector: files
+connectivity: public
+settings:
+  path: ./samples
