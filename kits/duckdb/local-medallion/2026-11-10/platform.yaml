@@ -1,0 +1,6 @@
+apiVersion: ingestron.io/v1
+kind: Platform
+id: laptop
+settings:
+  duckdb-table:
+    published: ./published # each table as <schema>.<table>.parquet

@@ -1,0 +1,3 @@
+# The DuckDB database and the published tables are data, built from the files.
+ingestron.duckdb*
+published/*.parquet

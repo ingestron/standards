@@ -1,0 +1,8 @@
+apiVersion: ingestron.io/v1
+kind: Connection
+id: shop
+description: The shop's order exports, in the project folder.
+connector: files
+connectivity: public
+settings:
+  path: ./samples

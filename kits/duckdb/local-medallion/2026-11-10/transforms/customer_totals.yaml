@@ -1,0 +1,10 @@
+apiVersion: ingestron.io/v1
+kind: Transform
+id: customer_totals
+description: Orders and their total per customer.
+inputs: [orders]
+code: |
+  SELECT customer, count(*) AS orders, sum(amount) AS total
+  FROM {{ tables.orders }}
+  GROUP BY customer
+contract: shop.customer_totals

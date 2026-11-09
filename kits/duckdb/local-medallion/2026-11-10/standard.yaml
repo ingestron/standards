@@ -1,0 +1,20 @@
+apiVersion: ingestron.io/v1
+kind: Standard
+id: defaults
+description: Two layers on a laptop. Bronze loads the files in full. Silver keeps the latest row per key.
+packs: [duckdb@2]
+features: ga
+origin:
+  standard: duckdb/local-medallion
+  version: 2026-11-10
+layers:
+  - name: bronze
+    audit: [loaded_at, source_file]
+  - name: silver
+    history: latest
+    audit: [loaded_at]
+load:
+  default: full
+ingest:
+  settings:
+    duckdb-files: { format: csv } # header row, comma-separated

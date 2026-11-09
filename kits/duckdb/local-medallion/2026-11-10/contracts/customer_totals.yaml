@@ -1,0 +1,13 @@
+apiVersion: v3.1.0
+kind: DataContract
+id: shop.customer_totals
+version: 1.0.0
+status: active
+schema:
+  - name: customer_totals
+    logicalType: object
+    description: Orders and their total per customer.
+    properties:
+      - { name: customer, logicalType: string, primaryKey: true }
+      - { name: orders, logicalType: integer }
+      - { name: total, logicalType: number }

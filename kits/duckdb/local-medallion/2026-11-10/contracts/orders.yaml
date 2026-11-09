@@ -1,0 +1,14 @@
+apiVersion: v3.1.0
+kind: DataContract
+id: shop.orders
+version: 1.0.0
+status: active
+schema:
+  - name: orders
+    logicalType: object
+    description: One row per order.
+    properties:
+      - { name: order_id, logicalType: integer, required: true, primaryKey: true }
+      - { name: customer, logicalType: string }
+      - { name: amount, logicalType: number }
+      - { name: ordered_at, logicalType: date }

@@ -1,0 +1,12 @@
+# Runs on a laptop: DuckDB reads samples/, keeps the tables in ingestron.duckdb
+# and publishes each one to published/ as Parquet.
+id: shop
+environments:
+  dev: {}
+imports:
+  - standard.yaml
+  - platform.yaml
+  - connections/*.yaml
+  - flows/*.yaml
+  - transforms/*.yaml
+  - contracts/*.yaml

@@ -1,0 +1,6 @@
+apiVersion: ingestron.io/v1
+kind: Flow
+id: orders
+source: shop
+tables:
+  orders: { object: orders.csv, contract: shop.orders }

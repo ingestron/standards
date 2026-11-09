@@ -1,0 +1,10 @@
+id: duckdb/local-medallion
+version: 2026-11-10
+title: Local medallion on DuckDB
+summary: Bronze tables loaded in full from CSV files and a silver table that keeps the latest row per key, all in one DuckDB file on a laptop.
+packs: [duckdb@2]
+features: ga
+requires: { ingestron: ">=2.3.0" }
+maintainers: [ingestron]
+replaces: null
+notes: First version.
