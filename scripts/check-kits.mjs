@@ -2,7 +2,7 @@
 //   1. readKit accepts it;
 //   2. the real CLI plans it, with no error;
 //   3. a `features: ga` kit has no PREVIEW_FEATURE in that plan;
-//   4. its README names every intent section its standard writes;
+//   4. its README names every intent section its standard writes, in backticks (`load`);
 //   5. when its tag `<id>@<version>` exists, nothing in it changed since.
 // Usage, from the repository's root folder: node scripts/check-kits.mjs [<kit folder>...]
 // INGESTRON_CLI is the path of the CLI's JavaScript file; by default, the
@@ -107,8 +107,10 @@ export function sectionsWritten(standardText) {
 function readmeProblems(folder) {
   const written = sectionsWritten(readFileSync(join(folder, "standard.yaml"), "utf8"));
   const readme = readFileSync(join(folder, "README.md"), "utf8");
-  const missing = written.filter((name) => !new RegExp(`\\b${name}\\b`, "i").test(readme));
-  return missing.length === 0 ? [] : [`README.md does not name: ${missing.join(", ")}`];
+  const missing = written.filter((name) => !readme.includes(`\`${name}\``));
+  return missing.length === 0
+    ? []
+    : [`README.md does not name in backticks: ${missing.join(", ")}`];
 }
 
 /** The problem when a tagged kit has changed since its tag. */

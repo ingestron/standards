@@ -19,7 +19,8 @@ how to add one here.
 4. Use synthetic data only. No credentials, no customer data, no cloud access.
 5. In the README, explain each choice in plain words and give the platform
    source and the date you read it. Name every intent section the Standard
-   writes (`load`, `history`, `audit`, `operations` and so on).
+   writes in backticks, as in `load`, `history`, `audit` or `operations`. The
+   check looks for the name between backticks; the plain word does not count.
 6. Run the checks (below), then open a pull request.
 
 ## Run the checks
@@ -38,14 +39,16 @@ npm test
 - `kit.yaml` and the other files follow the format;
 - `ingestron plan` runs on a copy of the kit with no error;
 - a kit with `features: ga` has no `PREVIEW_FEATURE` warning in that plan;
-- the README names every intent section the Standard writes;
+- the README names every intent section the Standard writes, in backticks;
 - the kit has not changed since its tag, when it has one.
 
 Name kit folders to check only those:
 `npm run check -- kits/duckdb/local-medallion/2026-11-10`.
 
 `npm run index` rewrites `index.json` from the folders and tags. Commit the
-result. The pull request check fails when `index.json` is out of date.
+result. The pull request check fails when `index.json` is out of date. After
+tagging a version, a maintainer runs `npm run index` again and commits
+`index.json`, so each version lists the commit of its tag.
 
 `INGESTRON_CLI` is the path of the CLI's JavaScript file. Set it to check
 against a build you made yourself. Without it, the checks use the installed

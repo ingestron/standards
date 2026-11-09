@@ -109,7 +109,7 @@ describe("check-kits", () => {
     assert.equal(result.status, 1);
     assert.match(result.output, /README/);
     assert.match(result.output, /retention/);
-    assert.doesNotMatch(result.output, /name:[^\n]*operations/);
+    assert.doesNotMatch(result.output, /backticks:[^\n]*operations/);
   });
 
   it("reads the sections a layer writes from the standard", () => {
@@ -118,7 +118,16 @@ describe("check-kits", () => {
     writeFileSync(join(folder, "README.md"), "# Sample\n\nNothing about the layers.\n");
     const result = check(repo);
     assert.equal(result.status, 1);
-    assert.match(result.output, /does not name: history/);
+    assert.match(result.output, /does not name in backticks: history/);
+  });
+
+  it("fails a README that uses a section's name only as a plain word", () => {
+    const repo = makeRepo();
+    const folder = addKit(repo, "duckdb-sample");
+    writeFileSync(join(folder, "README.md"), "# Sample\n\nBronze keeps its history as it loads.\n");
+    const result = check(repo);
+    assert.equal(result.status, 1);
+    assert.match(result.output, /does not name in backticks: history/);
   });
 
   it("fails a tagged folder that has changed since its tag, naming it", () => {
