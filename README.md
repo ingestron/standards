@@ -29,7 +29,9 @@ Ingestron copies the kit into the folder. Every value only your team knows is
 then run `ingestron plan`.
 
 Give only the kit's id, such as `duckdb/local-medallion`, to take its newest
-version that is not a preview.
+version that is not a preview: the newest among the versions installed with
+Ingestron and the tags in this repository. When this repository cannot be
+reached, Ingestron takes the newest installed version and says so first.
 
 ## Move to a newer kit
 
