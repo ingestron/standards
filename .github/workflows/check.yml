@@ -13,7 +13,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      # The Databricks CLI the Databricks pack names, v1.23.0: the test of each Databricks
+      # kit's bundle reads its `databricks bundle schema`. Installed with Databricks' own
+      # action, pinned by its release tag: https://github.com/databricks/setup-cli
+      - uses: databricks/setup-cli@v1.23.0
       - run: npm ci
       - run: npm run check
+      - run: npm test
       - run: npm run index
       - run: git diff --exit-code index.json

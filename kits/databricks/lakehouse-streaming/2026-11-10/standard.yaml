@@ -1,0 +1,32 @@
+apiVersion: ingestron.io/v1
+kind: Standard
+id: lakehouse-streaming
+description: Customers into bronze as they arrive, with audit columns and rescued data; orders kept to the latest row per key in silver, with audit columns; gold materialised views; retried and alerted on failure.
+packs: [databricks@2]
+features: ga
+origin:
+  standard: databricks/lakehouse-streaming
+  version: 2026-11-10
+naming:
+  # One catalog per environment, such as dev_sales and prod_sales
+  catalog: "{{ environment }}_sales"
+layers:
+  - name: bronze
+    audit: [loaded_at, source_file]
+    rescued: true
+  - name: silver
+    history: latest
+    audit: [loaded_at, source_file]
+  - gold
+load:
+  default: files # each new file is read once
+storage:
+  clustering: auto # Databricks chooses the clustering columns
+quality:
+  required: drop # a row missing a required column is left out
+  results: true # the pipeline's event log is kept as a table
+operations:
+  retries: { count: 2, interval: 5m }
+  timeout: 2h
+  concurrency: { max_runs: 1, queue: true }
+  alerts: { on: [failure] } # who is told is in platform.yaml

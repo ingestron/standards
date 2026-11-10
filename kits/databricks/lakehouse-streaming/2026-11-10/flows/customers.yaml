@@ -1,0 +1,11 @@
+apiVersion: ingestron.io/v1
+kind: Flow
+id: customers
+description: Customers from the web shop, as they arrive, in bronze.
+source: shop
+tables:
+  customers:
+    object: customers # the folder under the connection's path
+    contract: shop.customers
+    ingest:
+      with: { format: csv, options: { header: true } }

@@ -1,0 +1,27 @@
+# From databricks/lakehouse-streaming@2026-11-10
+apiVersion: ingestron.io/v1
+kind: Platform
+id: lakehouse
+schedule:
+  cron: 0 0 5 * * ? # Quartz cron: the refresh job runs once a day, at 05:00
+  timezone: UTC # the time zone the cron is read in
+alerts:
+  - kind: email
+    on: [failure]
+    # The address told when a run fails, such as data-team@example.com
+    to: [REPLACE_ME]
+databricks:
+  workspace:
+    host: ${values.host} # each environment's own, in project.yaml
+  run_as:
+    # Application ID of the service principal the pipelines and jobs run as
+    service_principal_name: REPLACE_ME
+  permissions:
+    - level: CAN_MANAGE
+      # Group that manages the pipelines and jobs
+      group_name: REPLACE_ME
+    - level: CAN_VIEW
+      # Group that may view the pipelines and jobs
+      group_name: REPLACE_ME
+  manage:
+    checks: true # count the contracts' rules over all rows after each refresh

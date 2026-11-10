@@ -1,0 +1,17 @@
+apiVersion: ingestron.io/v1
+kind: Flow
+id: orders
+description: Orders from the web shop, kept current by key in silver.
+source: shop
+layer: silver
+tables:
+  orders:
+    object: orders # the folder under the connection's path
+    contract: shop.orders
+    # The newest change to each order wins; a change with op = 'D' removes the order.
+    sequence: updated_at
+    load: { deletes: { when: "op = 'D'" } }
+    store:
+      with: { except_columns: [op] }
+    expectations:
+      - { name: positive_total, check: total >= 0 }

@@ -1,0 +1,22 @@
+# A streaming lakehouse on Databricks, with a dev and a prod environment.
+id: shop
+environments:
+  dev:
+    values:
+      # The dev workspace's URL, such as https://adb-<workspace-id>.<n>.azuredatabricks.net
+      host: REPLACE_ME
+      # Where the shop's files land in dev: a volume, such as /Volumes/dev_sales/landing/shop
+      landing: REPLACE_ME
+  prod:
+    values:
+      # The prod workspace's URL, such as https://adb-<workspace-id>.<n>.azuredatabricks.net
+      host: REPLACE_ME
+      # Where the shop's files land in prod: a volume, such as /Volumes/prod_sales/landing/shop
+      landing: REPLACE_ME
+imports:
+  - standard.yaml
+  - platform.yaml
+  - connections/*.yaml
+  - flows/*.yaml
+  - transforms/*.yaml
+  - contracts/*.yaml

@@ -50,6 +50,16 @@ result. The pull request check fails when `index.json` is out of date. After
 tagging a version, a maintainer runs `npm run index` again and commits
 `index.json`, so each version lists the commit of its tag.
 
+`npm test` also builds each kit that uses the Databricks pack and checks the
+bundle against the bundle schema of the Databricks CLI. The schema is not
+stored in this repository: the test runs `databricks bundle schema` on the
+Databricks CLI you have installed, which must be v1.23.0 or later, and passes
+it through `scripts/trim-bundle-schema.mjs`. That script drops the
+descriptions and leaves open three model serving definitions no kit uses.
+Without the Databricks CLI, the test is skipped and says why. Install it with
+[Databricks' instructions](https://docs.databricks.com/aws/en/dev-tools/cli/install);
+the pull request check installs v1.23.0.
+
 `INGESTRON_CLI` is the path of the CLI's JavaScript file. Set it to check
 against a build you made yourself. Without it, the checks use the installed
 `@ingestron/cli`.

@@ -1,6 +1,24 @@
 {
   "kits": [
     {
+      "id": "databricks/lakehouse-streaming",
+      "versions": [
+        {
+          "version": "2026-11-10",
+          "title": "Streaming lakehouse on Databricks",
+          "summary": "Streaming tables that read each new file once, silver kept to the latest row per key with checks, and gold materialised views, retried and alerted on failure.",
+          "packs": [
+            "databricks@2"
+          ],
+          "features": "ga",
+          "maintainers": [
+            "ingestron"
+          ],
+          "commit": null
+        }
+      ]
+    },
+    {
       "id": "duckdb/local-medallion",
       "versions": [
         {
