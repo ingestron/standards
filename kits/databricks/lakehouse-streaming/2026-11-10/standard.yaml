@@ -1,7 +1,7 @@
 apiVersion: ingestron.io/v1
 kind: Standard
 id: lakehouse-streaming
-description: Customers into bronze as they arrive, with audit columns and rescued data; orders kept to the latest row per key in silver, with audit columns; gold materialised views; retried and alerted on failure.
+description: Customers into bronze as they arrive, with audit columns and rescued data; orders cleansed, checked and kept to the latest row per key in silver, with audit columns and the rows checks leave out kept apart; gold materialised views, checked; retried and alerted on failure.
 packs: [databricks@2]
 features: ga
 origin:
@@ -12,18 +12,26 @@ naming:
   catalog: "{{ environment }}_sales"
 layers:
   - name: bronze
+    does: raw # every row as it arrived; checks only count
     audit: [loaded_at, source_file]
     rescued: true
   - name: silver
+    does: [cleanse, deduplicate, check, quarantine]
     history: latest
     audit: [loaded_at, source_file]
-  - gold
+    quality:
+      quarantine: true # rows a drop check leaves out go to <table>_quarantine
+  - name: gold
+    does: [check]
 load:
   default: files # each new file is read once
+cleanse:
+  text: { trim: true, empty: null } # every text column, in layers that cleanse
+  timestamps: { to: UTC } # every timestamp column, in layers that cleanse
 storage:
   clustering: auto # Databricks chooses the clustering columns
 quality:
-  required: drop # a row missing a required column is left out
+  required: drop # a row missing a required value is left out, in layers that check
   results: true # the pipeline's event log is kept as a table
 operations:
   retries: { count: 2, interval: 5m }

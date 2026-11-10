@@ -3,8 +3,9 @@ kind: Transform
 id: customer_totals
 description: Orders and their total per customer.
 inputs: [orders]
+# Grouped by the customer as silver cleanses it, so " Ana" and "Ana" are one customer.
 code: |
-  SELECT customer, count(*) AS orders, sum(amount) AS total
+  SELECT nullif(trim(customer), '') AS customer, count(*) AS orders, sum(amount) AS total
   FROM {{ tables.orders }}
-  GROUP BY customer
+  GROUP BY nullif(trim(customer), '')
 contract: shop.customer_totals

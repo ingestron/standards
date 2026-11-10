@@ -6,7 +6,7 @@
         {
           "version": "2026-11-10",
           "title": "Streaming lakehouse on Databricks",
-          "summary": "Streaming tables that read each new file once, silver kept to the latest row per key with checks, and gold materialised views, retried and alerted on failure.",
+          "summary": "Streaming tables that read each new file once, silver cleansed, checked and kept to the latest row per key, and gold materialised views, retried and alerted on failure.",
           "packs": [
             "databricks@2"
           ],
@@ -24,7 +24,7 @@
         {
           "version": "2026-11-10",
           "title": "Local medallion on DuckDB",
-          "summary": "Bronze tables loaded in full from CSV files and a silver table that keeps the latest row per key, all in one DuckDB file on a laptop.",
+          "summary": "Bronze tables loaded in full from CSV files, and a silver table cleansed, checked and kept to the latest row per key, all in one DuckDB file on a laptop.",
           "packs": [
             "duckdb@2"
           ],

@@ -3,18 +3,18 @@
 A web shop's files loaded into Databricks in three layers. The `bronze` layer
 holds customers as they arrive in the files, a row each time a customer is
 exported. The `silver` layer holds one row per order, kept current from change
-records. Orders skip `bronze`: the changes as received are kept in `silver`
-beside the current rows. The `gold` layer holds order totals per customer and
-day. One Lakeflow pipeline builds the tables, and one
-job refreshes it each day, tries again when it fails and mails your team when
-it still fails.
+records, cleansed and checked; a change that fails a check is kept apart.
+Orders skip `bronze`: the changes as received are kept in `silver` beside the
+current rows. The `gold` layer holds order totals per customer and day,
+checked. One Lakeflow pipeline builds the tables, and one job refreshes it
+each day, tries again when it fails and mails your team when it still fails.
 
 This kit is version 2026-11-10. It uses only Databricks features that are
 generally available.
 
 | File                          | What it shows                                                                            |
 | ----------------------------- | ---------------------------------------------------------------------------------------- |
-| `standard.yaml`               | The layers and what each one keeps, and how the job runs                                 |
+| `standard.yaml`               | The layers, what each one does and keeps, and how the job runs                           |
 | `platform.yaml`               | The schedule, who is told of failures, and the `databricks:` part                        |
 | `project.yaml`                | The `dev` and `prod` environments and their own values                                   |
 | `connections/shop.yaml`       | The volume the shop's files land in                                                      |
@@ -63,15 +63,39 @@ with `databricks bundle deploy -t dev`.
 values. A flow's tables go in the first layer unless the flow names another,
 and a transform's table goes in the layer it names.
 
-| Section      | Where it is                              | What it does on Databricks                                                    |
-| ------------ | ---------------------------------------- | ----------------------------------------------------------------------------- |
-| `load`       | `default: files`                         | Auto Loader reads each new file once, with `read_files`.                      |
-| `audit`      | `bronze` and `silver`                    | Two columns, `_loaded_at` and `_source_file`, are added to each table there.  |
-| `rescued`    | `bronze`                                 | In `bronze.customers`, values that do not fit are kept in `_rescued_data`.    |
-| `history`    | `silver`: `latest`                       | AUTO CDC keeps the latest row per key, as SCD type 1.                         |
-| `storage`    | `clustering: auto`                       | `CLUSTER BY AUTO` on every table but `silver.orders_changes`.                 |
-| `quality`    | `required: drop`, `results: true`        | Rows missing a required value are left out; the event log is kept as a table. |
-| `operations` | retries, timeout, concurrency and alerts | The refresh job's retries, time limit, queue and failure emails.              |
+| Section      | Where it is                                               | What it does on Databricks                                                                    |
+| ------------ | --------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `layers`     | `bronze`, `silver`, then `gold`                           | Each table is created in the schema named for its layer.                                      |
+| `does`       | `bronze`: `raw`                                           | Every row is kept as it arrived; checks only count.                                           |
+|              | `silver`: `cleanse`, `deduplicate`, `check`, `quarantine` | Text is cleansed, checks leave rows out, and the rows they leave out are kept apart.          |
+|              | `gold`: `check`                                           | Checks leave rows out.                                                                        |
+| `load`       | `default: files`                                          | Auto Loader reads each new file once, with `read_files`.                                      |
+| `audit`      | `bronze` and `silver`                                     | Two columns, `_loaded_at` and `_source_file`, are added to each table there.                  |
+| `rescued`    | `bronze`                                                  | In `bronze.customers`, values that do not fit are kept in `_rescued_data`.                    |
+| `history`    | `silver`: `latest`                                        | AUTO CDC keeps the latest row per key, as SCD type 1.                                         |
+| `cleanse`    | `text`, `timestamps`                                      | In `silver`, text is trimmed and an empty text becomes null; timestamps are converted to UTC. |
+| `storage`    | `clustering: auto`                                        | `CLUSTER BY AUTO` on every table but `silver.orders_changes` and `silver.orders_quarantine`.  |
+| `quality`    | `required: drop`, `results: true`                         | Rows missing a required value are left out where checks do; the event log is kept as a table. |
+|              | `silver`: `quarantine: true`                              | Changes a check leaves out are kept in `silver.orders_quarantine`.                            |
+| `operations` | retries, timeout, concurrency and alerts                  | The refresh job's retries, time limit, queue and failure emails.                              |
+
+### `layers` and `does`
+
+Each layer says what it does with its rows in `does`:
+
+- `bronze` does `raw`: it keeps every row as it arrived, so you can always see
+  what the shop sent. Its checks only count: a customer with no email is kept
+  in `bronze.customers`, and the pipeline records that the check failed.
+  Nothing in it is cleansed.
+- `silver` does `cleanse`, `deduplicate`, `check` and `quarantine`. Its tables
+  are cleansed and checked, and the rows a check leaves out are kept apart.
+  `deduplicate` lets a materialised view in `silver` write `deduplicate` under
+  its `cleanse`, to keep one row per key. `silver.orders` does not write it:
+  AUTO CDC already keeps one row per order, so Ingestron would only warn that
+  it is redundant.
+- `gold` does `check`: rows that fail a check are left out of
+  `gold.daily_sales`. It reads tables that are already cleansed, so it does not
+  cleanse again.
 
 ### `load`
 
@@ -126,13 +150,36 @@ in `contracts/orders.yaml`.
 
 Source, accessed 2026-11-09: [AUTO CDC](https://docs.databricks.com/aws/en/ldp/cdc).
 
+### `cleanse`
+
+`cleanse` gives every table in a layer that cleanses, here `silver`, the same
+treatment of its columns:
+
+- `text: { trim: true, empty: null }`: each text column, one whose
+  `logicalType` is `string`, has its leading and trailing spaces removed, and a
+  value left empty becomes null. In `silver.orders` that is `op`, written
+  `nullif(trim(op), '')` as the changes are read, so `' D'` still deletes an
+  order.
+- `timestamps: { to: UTC }`: each timestamp column is converted to UTC from
+  the zone its source writes in. `connections/shop.yaml` gives no `timezone`,
+  so the shop's times are taken to be in UTC already, and nothing is
+  converted. If the shop writes London time, add `timezone: Europe/London` to
+  the connection, and `silver` converts `ordered_at` and `updated_at` with
+  `to_utc_timestamp`.
+
+Sources, accessed 2026-11-10:
+[trim](https://docs.databricks.com/aws/en/sql/language-manual/functions/trim),
+[nullif](https://docs.databricks.com/aws/en/sql/language-manual/functions/nullif)
+and
+[to_utc_timestamp](https://docs.databricks.com/aws/en/sql/language-manual/functions/to_utc_timestamp).
+
 ### `storage`
 
 `storage: clustering: auto` creates `bronze.customers`, `silver.orders` and
 `gold.daily_sales` with `CLUSTER BY AUTO`, so Databricks chooses the clustering
 columns from how each table is queried. `silver.orders_changes`, the changes
-as received, has no `CLUSTER BY`: the Databricks pack does not apply
-`storage` to it.
+as received, and `silver.orders_quarantine` have no `CLUSTER BY`: the
+Databricks pack does not apply `storage` to them.
 Databricks recommends liquid clustering for all new tables, and
 `CLUSTER BY AUTO` is generally available.
 
@@ -142,9 +189,15 @@ Source, accessed 2026-11-09:
 ### `quality`
 
 - `required: drop` leaves out a row that is missing a value the contract
-  says is required, in `bronze.customers`, `silver.orders` and
-  `gold.daily_sales`. The pipeline records how many rows each check dropped.
-  `silver.orders_changes` has no checks: it keeps every change as received.
+  says is required, in `silver.orders` and `gold.daily_sales`, the layers
+  whose `does` lists `check`. In `bronze.customers` the same checks only
+  count, because `bronze` does `raw`. The pipeline records how many rows each
+  check failed or dropped. `silver.orders_changes` has no checks: it keeps
+  every change as received.
+- `quarantine: true` on `silver` keeps the changes that a `drop` check leaves
+  out of `silver.orders` in `silver.orders_quarantine`, with a column
+  `_failed_checks` that names the checks each failed. It reads the changes
+  once, from `silver.orders_changes`, as Databricks' quarantine pattern does.
 - `results: true` keeps the pipeline's event log as a table, `<pipeline>_event_log`
   in the `bronze` schema, so you can query how many rows passed and failed each
   check.
@@ -155,8 +208,13 @@ so `platform.yaml` turns on `manage: checks: true`, and the job runs these
 checks after each refresh. `ingestron apply` writes the privileges they need
 in `prerequisites/<environment>.sql`.
 
-Source, accessed 2026-11-09:
-[Pipeline event log](https://docs.databricks.com/aws/en/ldp/monitor-event-logs).
+Sources:
+[Pipeline event log](https://docs.databricks.com/aws/en/ldp/monitor-event-logs),
+accessed 2026-11-09;
+[Pipeline expectations](https://docs.databricks.com/aws/en/ldp/expectations)
+and "Quarantine invalid records" in
+[Expectation recommendations and advanced patterns](https://docs.databricks.com/aws/en/ldp/expectation-patterns),
+accessed 2026-11-10.
 
 ### `operations`
 

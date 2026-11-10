@@ -8,7 +8,7 @@ schema:
     logicalType: object
     description: One row per order.
     properties:
-      - { name: order_id, logicalType: integer, required: true, primaryKey: true }
+      - { name: order_id, logicalType: integer, primaryKey: true }
       - { name: customer, logicalType: string }
       - { name: amount, logicalType: number }
       - { name: ordered_at, logicalType: date }

@@ -1,7 +1,7 @@
 apiVersion: ingestron.io/v1
 kind: Standard
 id: defaults
-description: Two layers on a laptop. Bronze loads the files in full. Silver keeps the latest row per key.
+description: Two layers on a laptop. Bronze loads the files in full and keeps every row as it arrived. Silver cleanses, checks and keeps the latest row per key, and keeps the rows its checks leave out.
 packs: [duckdb@2]
 features: ga
 origin:
@@ -9,12 +9,22 @@ origin:
   version: 2026-11-10
 layers:
   - name: bronze
+    does: raw # every row as it arrived
     audit: [loaded_at, source_file]
   - name: silver
+    does: [cleanse, deduplicate, check, quarantine]
     history: latest
     audit: [loaded_at]
+    quality:
+      quarantine: true # rows a drop check leaves out go to <table>_quarantine
 load:
   default: full
+cleanse:
+  text: { trim: true, empty: null } # every text column, in layers that cleanse
+  timestamps: { to: UTC } # every timestamp column, in layers that cleanse
+quality:
+  required: drop # a row missing a required value is left out, in layers that check
+  results: true # each check's result is kept in <schema>._ingestron_checks
 ingest:
   settings:
     duckdb-files: { format: csv } # header row, comma-separated

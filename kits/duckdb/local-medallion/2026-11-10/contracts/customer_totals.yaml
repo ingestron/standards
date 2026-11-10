@@ -8,6 +8,6 @@ schema:
     logicalType: object
     description: Orders and their total per customer.
     properties:
-      - { name: customer, logicalType: string, primaryKey: true }
+      - { name: customer, logicalType: string, required: true, primaryKey: true }
       - { name: orders, logicalType: integer }
       - { name: total, logicalType: number }
