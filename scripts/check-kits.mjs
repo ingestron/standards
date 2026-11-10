@@ -2,7 +2,8 @@
 //   1. readKit accepts it;
 //   2. the real CLI plans it, with no error;
 //   3. that plan has no warning but REPLACE_ME, the values a kit leaves for its user
-//      (so a `features: ga` kit has no PREVIEW_FEATURE, and no kit has NOT_APPLIED);
+//      (so a `features: ga` kit has no PREVIEW_FEATURE, and no kit has NOT_APPLIED), and its
+//      platform.yaml accepts no warning, which would hide one from this check;
 //   4. its README names every intent section its standard writes, in backticks (`load`);
 //   5. when its tag `<id>@<version>` exists, nothing in it changed since.
 // Usage, from the repository's root folder: node scripts/check-kits.mjs [<kit folder>...]
@@ -94,6 +95,18 @@ function planProblems(folder) {
   }
 }
 
+/** The problem when the kit's platform.yaml has an `accept` list, which would hide warnings. */
+export function acceptProblems(folder) {
+  const path = join(folder, "platform.yaml");
+  if (!existsSync(path)) return [];
+  const text = readFileSync(path, "utf8").replace(/(^|\s)#.*$/gm, "");
+  return /^accept\s*:/m.test(text)
+    ? [
+        "platform.yaml has accept entries. A kit accepts no warning: change the kit so the plan reports none.",
+      ]
+    : [];
+}
+
 /** The intent sections the standard's text writes, at its top level or in a layer or `fixed`. */
 export function sectionsWritten(standardText) {
   const text = standardText.replace(/(^|\s)#.*$/gm, "");
@@ -136,7 +149,12 @@ export function kitProblems(repo, folder) {
   } catch (error) {
     return { name: shown(repo, folder), problems: [error.message] };
   }
-  const problems = [...planProblems(folder), ...readmeProblems(folder), ...tagProblems(repo, kit)];
+  const problems = [
+    ...planProblems(folder),
+    ...acceptProblems(folder),
+    ...readmeProblems(folder),
+    ...tagProblems(repo, kit),
+  ];
   return { name: `${shown(repo, folder)} (${tagOf(kit)})`, problems };
 }
 

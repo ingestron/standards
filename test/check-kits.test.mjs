@@ -64,6 +64,21 @@ describe("check-kits", () => {
     assert.match(result.output, /duckdb\/sample@2026-11-10/);
   });
 
+  it("fails a kit whose platform.yaml accepts a warning, which would hide it from the check", () => {
+    const repo = makeRepo();
+    const folder = addKit(repo, "duckdb-sample");
+    const standard = join(folder, "standard.yaml");
+    writeFileSync(standard, readFileSync(standard, "utf8").replace("does: raw, ", ""));
+    appendFileSync(
+      join(folder, "platform.yaml"),
+      "accept:\n  - code: NOT_APPLIED\n    reason: Bronze checks nothing.\n",
+    );
+    const result = check(repo);
+    assert.equal(result.status, 1);
+    assert.match(result.output, /platform\.yaml has accept entries/);
+    assert.match(result.output, /duckdb\/sample@2026-11-10/);
+  });
+
   it("passes a kit whose only warnings are values left REPLACE_ME", () => {
     const repo = makeRepo();
     const folder = addKit(repo, "duckdb-sample");

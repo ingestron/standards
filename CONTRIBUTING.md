@@ -47,6 +47,8 @@ comes with `@ingestron/core`.
 - that plan has no warning but `REPLACE_ME`, the values a kit leaves for its
   user to write: no `NOT_APPLIED`, and no `PREVIEW_FEATURE` in a kit with
   `features: ga`;
+- its `platform.yaml` has no `accept` list: a kit accepts no warning, so none
+  is hidden from the check above;
 - the README names every intent section the Standard writes, in backticks;
 - the kit has not changed since its tag, when it has one.
 
