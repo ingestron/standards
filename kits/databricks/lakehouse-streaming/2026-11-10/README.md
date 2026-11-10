@@ -63,21 +63,21 @@ with `databricks bundle deploy -t dev`.
 values. A flow's tables go in the first layer unless the flow names another,
 and a transform's table goes in the layer it names.
 
-| Section      | Where it is                                               | What it does on Databricks                                                                    |
-| ------------ | --------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `layers`     | `bronze`, `silver`, then `gold`                           | Each table is created in the schema named for its layer.                                      |
-| `does`       | `bronze`: `raw`                                           | Every row is kept as it arrived; checks only count.                                           |
-|              | `silver`: `cleanse`, `deduplicate`, `check`, `quarantine` | Text is cleansed, checks leave rows out, and the rows they leave out are kept apart.          |
-|              | `gold`: `check`                                           | Checks leave rows out.                                                                        |
-| `load`       | `default: files`                                          | Auto Loader reads each new file once, with `read_files`.                                      |
-| `audit`      | `bronze` and `silver`                                     | Two columns, `_loaded_at` and `_source_file`, are added to each table there.                  |
-| `rescued`    | `bronze`                                                  | In `bronze.customers`, values that do not fit are kept in `_rescued_data`.                    |
-| `history`    | `silver`: `latest`                                        | AUTO CDC keeps the latest row per key, as SCD type 1.                                         |
-| `cleanse`    | `text`, `timestamps`                                      | In `silver`, text is trimmed and an empty text becomes null; timestamps are converted to UTC. |
-| `storage`    | `clustering: auto`                                        | `CLUSTER BY AUTO` on every table but `silver.orders_changes` and `silver.orders_quarantine`.  |
-| `quality`    | `required: drop`, `results: true`                         | Rows missing a required value are left out where checks do; the event log is kept as a table. |
-|              | `silver`: `quarantine: true`                              | Changes a check leaves out are kept in `silver.orders_quarantine`.                            |
-| `operations` | retries, timeout, concurrency and alerts                  | The refresh job's retries, time limit, queue and failure emails.                              |
+| Section      | Where it is                                               | What it does on Databricks                                                                                             |
+| ------------ | --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `layers`     | `bronze`, `silver`, then `gold`                           | Each table is created in the schema named for its layer.                                                               |
+| `does`       | `bronze`: `raw`                                           | Every row is kept as it arrived; checks only count.                                                                    |
+|              | `silver`: `cleanse`, `deduplicate`, `check`, `quarantine` | Text is cleansed, checks leave rows out, and the rows they leave out are kept apart.                                   |
+|              | `gold`: `check`                                           | Checks leave rows out.                                                                                                 |
+| `load`       | `default: files`                                          | Auto Loader reads each new file once, with `read_files`.                                                               |
+| `audit`      | `bronze` and `silver`                                     | Two columns, `_loaded_at` and `_source_file`, are added to each table there.                                           |
+| `rescued`    | `bronze`                                                  | In `bronze.customers`, values that do not fit are kept in `_rescued_data`.                                             |
+| `history`    | `silver`: `latest`                                        | AUTO CDC keeps the latest row per key, as SCD type 1.                                                                  |
+| `cleanse`    | `text`, `timestamps`                                      | In `silver`, text is trimmed and an empty text becomes null; timestamps would be converted to UTC.                     |
+| `storage`    | `clustering: auto`                                        | `CLUSTER BY AUTO` on every table but `silver.orders_changes` and `silver.orders_quarantine`.                           |
+| `quality`    | `required: drop`, `results: true`                         | Rows missing a required value are left out in the layers whose `does` lists `check`; the event log is kept as a table. |
+|              | `silver`: `quarantine: true`                              | Changes a check leaves out are kept in `silver.orders_quarantine`.                                                     |
+| `operations` | retries, timeout, concurrency and alerts                  | The refresh job's retries, time limit, queue and failure emails.                                                       |
 
 ### `layers` and `does`
 
@@ -94,8 +94,10 @@ Each layer says what it does with its rows in `does`:
   AUTO CDC already keeps one row per order, so Ingestron would only warn that
   it is redundant.
 - `gold` does `check`: rows that fail a check are left out of
-  `gold.daily_sales`. It reads tables that are already cleansed, so it does not
-  cleanse again.
+  `gold.daily_sales`. It does not cleanse. It reads `silver.orders`, which is
+  cleansed and checked, and `bronze.customers`, which is not: so
+  `transforms/daily_sales.sql` trims each email as `silver` would and leaves out
+  the customers with no id or email itself (below).
 
 ### `load`
 
@@ -238,8 +240,11 @@ Sources, accessed 2026-11-09:
 
 `bronze.customers` keeps every row the shop exports, and the shop exports every
 hour, so the same customer can appear in several files. Joined as it is, a
-customer with three rows would count each order three times.
-`transforms/daily_sales.sql` therefore takes each customer's latest row first,
+customer with three rows would count each order three times. `bronze` is also
+`raw`, so a row can have spaces around its email, or no id or email at all.
+`transforms/daily_sales.sql` therefore first writes each email as
+`nullif(trim(email), '')`, as `silver`'s `cleanse` would, and keeps only the
+rows with an id and an email. Then it takes each customer's latest row,
 by `updated_at`, with `QUALIFY ROW_NUMBER() OVER (PARTITION BY id ORDER BY
 updated_at DESC, ...) = 1`, and joins the orders to that. When two rows of a
 customer have the same `updated_at`, the one read last wins (`_loaded_at`),

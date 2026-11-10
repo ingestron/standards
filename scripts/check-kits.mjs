@@ -1,7 +1,8 @@
 // Checks kits. For each kit folder (all of them when none is named):
 //   1. readKit accepts it;
 //   2. the real CLI plans it, with no error;
-//   3. a `features: ga` kit has no PREVIEW_FEATURE in that plan;
+//   3. that plan has no warning but REPLACE_ME, the values a kit leaves for its user
+//      (so a `features: ga` kit has no PREVIEW_FEATURE, and no kit has NOT_APPLIED);
 //   4. its README names every intent section its standard writes, in backticks (`load`);
 //   5. when its tag `<id>@<version>` exists, nothing in it changed since.
 // Usage, from the repository's root folder: node scripts/check-kits.mjs [<kit folder>...]
@@ -59,8 +60,14 @@ export function diagnosticsIn(text) {
   });
 }
 
-/** The problems from planning a copy of the kit with the CLI; none when the plan is clean. */
-function planProblems(folder, features) {
+/** The warning a kit may have: a value it leaves for its user to write. */
+const ALLOWED_WARNINGS = new Set(["REPLACE_ME"]);
+
+/**
+ * The problems from planning a copy of the kit with the CLI: each error, and each warning but
+ * REPLACE_ME. None when the plan is clean.
+ */
+function planProblems(folder) {
   let cli;
   try {
     cli = cliPath();
@@ -75,10 +82,7 @@ function planProblems(folder, features) {
     const run = spawnSync("node", args, { cwd: copy, encoding: "utf8" });
     const found = diagnosticsIn(run.stdout ?? "");
     const problems = found
-      .filter(
-        (item) =>
-          item.severity === "error" || (features === "ga" && item.code === "PREVIEW_FEATURE"),
-      )
+      .filter((item) => item.severity === "error" || !ALLOWED_WARNINGS.has(item.code))
       .map((item) => `ingestron plan reports ${item.severity} ${item.code} at ${item.place}`);
     if (run.status !== 0 && problems.length === 0)
       problems.push(
@@ -132,11 +136,7 @@ export function kitProblems(repo, folder) {
   } catch (error) {
     return { name: shown(repo, folder), problems: [error.message] };
   }
-  const problems = [
-    ...planProblems(folder, kit.features),
-    ...readmeProblems(folder),
-    ...tagProblems(repo, kit),
-  ];
+  const problems = [...planProblems(folder), ...readmeProblems(folder), ...tagProblems(repo, kit)];
   return { name: `${shown(repo, folder)} (${tagOf(kit)})`, problems };
 }
 

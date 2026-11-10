@@ -29,8 +29,9 @@ duckdb -bail ingestron.duckdb -c ".read build/duckdb/dev/run.sql"
 duckdb ingestron.duckdb "SELECT * FROM silver.customer_totals"
 ```
 
-The run prints its check, `customer_not_null`, with `0` failing rows. The query
-then shows three customers: Ana with 2 orders, Ben with 2 and Chen with 1.
+The run prints its two checks, each with `0` failing rows: `order_id_not_null`
+in `bronze`, only counted, and `customer_not_null` in `silver`. The query then
+shows three customers: Ana with 2 orders, Ben with 2 and Chen with 1.
 Each run also writes `published/bronze.orders.parquet` and
 `published/silver.customer_totals.parquet`, which Power BI and other tools read
 as files.
@@ -38,6 +39,7 @@ as files.
 To see each run's checks, and the rows they left out:
 
 ```sh
+duckdb ingestron.duckdb "SELECT * FROM bronze._ingestron_checks"
 duckdb ingestron.duckdb "SELECT * FROM silver._ingestron_checks"
 duckdb ingestron.duckdb "SELECT * FROM silver.customer_totals_quarantine"
 ```
@@ -54,14 +56,14 @@ first layer and the transform's table in the second.
 | Section   | Where it is                                               | What it does on DuckDB                                                                                          |
 | --------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | `layers`  | `bronze`, then `silver`                                   | Each table is created in the DuckDB schema named for its layer.                                                 |
-| `does`    | `bronze`: `raw`                                           | The table keeps every row as it arrived: nothing is cleansed, checked or left out.                              |
+| `does`    | `bronze`: `raw`                                           | The table keeps every row as it arrived: nothing is cleansed or left out, and its checks only count.            |
 |           | `silver`: `cleanse`, `deduplicate`, `check`, `quarantine` | The table's text is cleansed, its checks run, and the rows they leave out are kept apart.                       |
 | `load`    | `default: full`                                           | Every file the flow names is read again each run.                                                               |
 | `history` | `silver`: `latest`                                        | One row per primary key: a new row with the same key replaces the old one; rows the query stops returning stay. |
 | `audit`   | `bronze`: `loaded_at`, `source_file`                      | Two columns are added after the contract's columns.                                                             |
 |           | `silver`: `loaded_at`                                     | One column is added after the contract's columns.                                                               |
 | `cleanse` | `text`, `timestamps`                                      | In `silver`, text is trimmed and an empty text becomes null; timestamps would be converted to UTC.              |
-| `quality` | `required: drop`, `results: true`                         | In `silver`, a row missing a required value is left out; each check's result is kept in a table.                |
+| `quality` | `required: drop`, `results: true`                         | In `silver`, a row missing a required value is left out; each check's result is kept in its schema's table.     |
 |           | `silver`: `quarantine: true`                              | The rows a check leaves out are kept in `silver.customer_totals_quarantine`.                                    |
 
 `bronze` does not write `history`. A table that reads files keeps the rows as
@@ -76,10 +78,10 @@ no third layer: this kit stops at silver.
 Each layer says what it does with its rows in `does`:
 
 - `bronze` does `raw`. It keeps every row as it arrived, so you can always see
-  what the file held. Nothing in it is cleansed, and DuckDB checks no row in a
-  layer whose `does` does not list `check`. That is why
-  `contracts/orders.yaml` marks no column `required`: a required column there
-  would only be reported as not applied.
+  what the file held. Nothing in it is cleansed. Its checks only count: every
+  action there is `warn`, so DuckDB prints how many rows fail each check and
+  keeps every row. `contracts/orders.yaml` says `order_id` is required, so the
+  run counts the orders that have none.
 - `silver` does `cleanse`, `deduplicate`, `check` and `quarantine`. Its table
   is cleansed and checked, and the rows a check leaves out are kept apart.
   `deduplicate` lets a table in `silver` write `deduplicate` under its
@@ -157,7 +159,9 @@ Cleansing happens to the rows the transform's query returns. The query adds up
 orders per customer, so `transforms/customer_totals.yaml` groups by the
 customer cleansed the same way: `" Ana"` and `"Ana"` are then one customer. Were
 it to group by `customer` as it is, they would be two rows with the same key
-after cleansing, and `history: latest` would keep only one of them.
+after cleansing, and `history: latest` would keep only one of them. Whenever
+you change `cleanse.text`, change the transform's SQL to match, so it groups
+by the customer as `silver` cleanses it.
 
 Sources, accessed 2026-11-10:
 [Text functions](https://duckdb.org/docs/2.0/sql/functions/text) for `trim`,
@@ -174,9 +178,11 @@ command line includes.
   is required. `contracts/customer_totals.yaml` says `customer` is required, so
   `silver.customer_totals` has the check `customer_not_null`. The table's
   primary key is `customer`, and a row with no key could not be kept by key.
-  In `bronze`, which does `raw`, an action is never more than a count.
-- `results: true` keeps each check's result in `silver._ingestron_checks`: the
-  run's id, when it ran, the table, the check, its action, how many rows
+  In `bronze`, which does `raw`, every action is `warn`: `order_id_not_null`
+  counts the orders with no `order_id`, and every row is kept.
+- `results: true` keeps each check's result in the `_ingestron_checks` table
+  of the table's schema, `bronze._ingestron_checks` and
+  `silver._ingestron_checks`: the run's id, when it ran, the table, the check, its action, how many rows
   failed, and whether it passed. Each run adds its rows, in the same
   transaction as the tables, so a run that stops leaves none.
 - `quarantine: true` on `silver` keeps the rows a `drop` check leaves out in

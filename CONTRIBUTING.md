@@ -44,7 +44,9 @@ comes with `@ingestron/core`.
 
 - `kit.yaml` and the other files follow the format;
 - `ingestron plan` runs on a copy of the kit with no error;
-- a kit with `features: ga` has no `PREVIEW_FEATURE` warning in that plan;
+- that plan has no warning but `REPLACE_ME`, the values a kit leaves for its
+  user to write: no `NOT_APPLIED`, and no `PREVIEW_FEATURE` in a kit with
+  `features: ga`;
 - the README names every intent section the Standard writes, in backticks;
 - the kit has not changed since its tag, when it has one.
 

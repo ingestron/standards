@@ -7,7 +7,7 @@ origin:
   standard: duckdb/sample
   version: 2026-11-10
 layers:
-  - { name: bronze, history: none }
+  - { name: bronze, does: raw, history: none }
 ingest:
   settings:
     duckdb-files: { format: csv }

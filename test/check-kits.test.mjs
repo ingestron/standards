@@ -49,6 +49,33 @@ describe("check-kits", () => {
     assert.match(result.output, /BROKEN_LINK/);
   });
 
+  it("fails a kit whose plan reports a warning other than REPLACE_ME", () => {
+    const repo = makeRepo();
+    const folder = addKit(repo, "duckdb-sample");
+    const standard = join(folder, "standard.yaml");
+    // Without does, bronze checks no row on DuckDB: its required column is NOT_APPLIED.
+    writeFileSync(standard, readFileSync(standard, "utf8").replace("does: raw, ", ""));
+    const result = check(repo);
+    assert.equal(result.status, 1);
+    assert.match(
+      result.output,
+      /ingestron plan reports warning NOT_APPLIED at contracts\/orders\.yaml/,
+    );
+    assert.match(result.output, /duckdb\/sample@2026-11-10/);
+  });
+
+  it("passes a kit whose only warnings are values left REPLACE_ME", () => {
+    const repo = makeRepo();
+    const folder = addKit(repo, "duckdb-sample");
+    const platform = join(folder, "platform.yaml");
+    writeFileSync(
+      platform,
+      readFileSync(platform, "utf8").replace(/published: \S+/, "published: REPLACE_ME"),
+    );
+    const result = check(repo);
+    assert.equal(result.status, 0, result.output);
+  });
+
   it("fails a ga kit whose plan reports PREVIEW_FEATURE", () => {
     const repo = makeRepo();
     addKit(repo, "databricks-preview");
