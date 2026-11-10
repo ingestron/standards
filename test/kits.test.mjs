@@ -10,39 +10,22 @@ import {
   mkdtempSync,
   readdirSync,
   readFileSync,
-  realpathSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
-import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { cliPath } from "../scripts/check-kits.mjs";
 import { allKitFolders, kitIn, shown, tagOf } from "../scripts/kits.mjs";
+import { devDependency } from "./dev-dependency.mjs";
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-/** The folder of a package, looked up from `start` the way Node looks for `node_modules`. */
-function packageFolder(name, start) {
-  for (let folder = realpathSync(start); ; folder = dirname(folder)) {
-    const found = join(folder, "node_modules", name);
-    if (existsSync(join(found, "package.json"))) return found;
-    if (dirname(folder) === folder)
-      throw new Error(`${name} is not installed; run npm ci.`);
-  }
-}
-
-// The JSON Schema validator and YAML reader of @ingestron/config, which @ingestron/core
-// depends on, so this repository needs no dependency of its own for them.
-const config = packageFolder(
-  "@ingestron/config",
-  packageFolder("@ingestron/core", repo),
-);
-const fromConfig = createRequire(join(config, "package.json"));
-const { Ajv } = fromConfig("ajv");
-const { parse } = fromConfig("yaml");
+const ajv = await devDependency("ajv");
+const Ajv = ajv.Ajv ?? ajv.default?.Ajv ?? ajv.default;
+const { parse } = await devDependency("yaml");
 
 /** The oldest Databricks CLI whose bundle schema the kits are checked against. */
 const minimum = [1, 23, 0];

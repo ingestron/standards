@@ -34,6 +34,12 @@ npm run index
 npm test
 ```
 
+`npm ci` installs the CLI, `@ingestron/core`, and `ajv` and `yaml`, which the
+tests use, pinned to the versions `@ingestron/config` uses. `npm ci` needs
+`package-lock.json`, which the first `npm install` writes at release time.
+Until then, the tests take `ajv` and `yaml` from `@ingestron/config`, which
+comes with `@ingestron/core`.
+
 `npm run check` takes each kit and checks that:
 
 - `kit.yaml` and the other files follow the format;
