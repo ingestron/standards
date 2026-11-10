@@ -1,3 +1,4 @@
+# From duckdb/local-medallion@2026-11-10
 apiVersion: ingestron.io/v1
 kind: Platform
 id: laptop

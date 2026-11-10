@@ -18,10 +18,8 @@ databricks:
     service_principal_name: REPLACE_ME
   permissions:
     - level: CAN_MANAGE
-      # Group that manages the pipelines and jobs
-      group_name: REPLACE_ME
+      group_name: ${values.engineers} # in project.yaml
     - level: CAN_VIEW
-      # Group that may view the pipelines and jobs
-      group_name: REPLACE_ME
+      group_name: ${values.analysts} # in project.yaml
   manage:
     checks: true # count the contracts' rules over all rows after each refresh

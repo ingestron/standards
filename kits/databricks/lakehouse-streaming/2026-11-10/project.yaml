@@ -1,5 +1,10 @@
 # A streaming lakehouse on Databricks, with a dev and a prod environment.
 id: shop
+values:
+  # Group that manages the pipelines and jobs, such as data-engineers
+  engineers: REPLACE_ME
+  # Group that may view the pipelines and jobs, such as data-analysts
+  analysts: REPLACE_ME
 environments:
   dev:
     values:

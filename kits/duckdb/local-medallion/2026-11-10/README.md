@@ -42,13 +42,13 @@ built in one transaction, so a failed run publishes nothing.
 `silver` each start from their layer's values. The flow's table goes in the
 first layer and the transform's table in the second.
 
-| Section   | Where it is                          | What it does on DuckDB                                                             |
-| --------- | ------------------------------------ | ---------------------------------------------------------------------------------- |
-| `layers`  | `bronze`, then `silver`              | Each table is created in the DuckDB schema named for its layer.                    |
-| `load`    | `default: full`                      | Every file the flow names is read again each run.                                  |
-| `history` | `silver`: `latest`                   | The table keeps one row per primary key. Rows from a new run replace the old ones. |
-| `audit`   | `bronze`: `loaded_at`, `source_file` | Two columns are added after the contract's columns.                                |
-|           | `silver`: `loaded_at`                | One column is added after the contract's columns.                                  |
+| Section   | Where it is                          | What it does on DuckDB                                                                                          |
+| --------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `layers`  | `bronze`, then `silver`              | Each table is created in the DuckDB schema named for its layer.                                                 |
+| `load`    | `default: full`                      | Every file the flow names is read again each run.                                                               |
+| `history` | `silver`: `latest`                   | One row per primary key: a new row with the same key replaces the old one; rows the query stops returning stay. |
+| `audit`   | `bronze`: `loaded_at`, `source_file` | Two columns are added after the contract's columns.                                                             |
+|           | `silver`: `loaded_at`                | One column is added after the contract's columns.                                                               |
 
 `bronze` does not write `history`. A table that reads files keeps the rows as
 they arrived, so each run replaces the table.

@@ -37,11 +37,12 @@ hover says where to find it.
 
 | Where                                         | What to write                                                                                  |
 | --------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `project.yaml`, `engineers`                   | The group that manages the pipeline and job                                                    |
+| `project.yaml`, `analysts`                    | The group that may view the pipeline and job                                                   |
 | `project.yaml`, `host` in `dev` and `prod`    | Each workspace's URL, from the address bar when you are signed in                              |
 | `project.yaml`, `landing` in `dev` and `prod` | The volume the files land in, such as `/Volumes/dev_sales/landing/shop`, from Catalog Explorer |
 | `platform.yaml`, `alerts` `to`                | The address told when a run fails, such as your team's shared mailbox                          |
 | `platform.yaml`, `service_principal_name`     | The application ID of the service principal the pipeline and job run as                        |
-| `platform.yaml`, the two `group_name` values  | The group that manages the pipeline and job, and the group that may view them                  |
 
 Find the service principal and the groups in your workspace under Settings,
 then Identity and access, then Manage next to Service principals or Groups.
@@ -182,8 +183,11 @@ hour, so the same customer can appear in several files. Joined as it is, a
 customer with three rows would count each order three times.
 `transforms/daily_sales.sql` therefore takes each customer's latest row first,
 by `updated_at`, with `QUALIFY ROW_NUMBER() OVER (PARTITION BY id ORDER BY
-updated_at DESC) = 1`, and joins the orders to that. `bronze` keeps the full
-record of what arrived, and `gold` counts each customer once.
+updated_at DESC, ...) = 1`, and joins the orders to that. When two rows of a
+customer have the same `updated_at`, the one read last wins (`_loaded_at`),
+then the one from the later file (`_source_file`), then the first `email` in
+order, so every run picks the same row. `bronze` keeps the full record of what
+arrived, and `gold` counts each customer once.
 
 Source, accessed 2026-11-10:
 [QUALIFY clause](https://docs.databricks.com/aws/en/sql/language-manual/sql-ref-syntax-qry-select-qualify).
@@ -197,7 +201,8 @@ Databricks is under `databricks:`.
 - `run_as` runs the pipeline and the job as a service principal. Databricks
   calls this the most secure way to run production work.
 - `permissions` lets one group manage the pipeline and job and another view
-  them.
+  them. The two groups are `engineers` and `analysts` in `project.yaml`, so
+  `ingestron init --set engineers=<group>` sets one without the other.
 - `dev` deploys in development mode: names carry your user name and the
   schedule is paused. `prod` deploys in production mode.
 
