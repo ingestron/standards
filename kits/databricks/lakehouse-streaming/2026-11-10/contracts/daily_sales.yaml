@@ -3,6 +3,8 @@ kind: DataContract
 id: shop.daily_sales
 version: 1.0.0
 status: active
+roles:
+  - { role: shop-analysts, access: read }
 schema:
   - name: daily_sales
     logicalType: object
@@ -12,6 +14,7 @@ schema:
           name: email,
           logicalType: string,
           required: true,
+          classification: confidential,
           primaryKey: true,
           primaryKeyPosition: 1,
         }

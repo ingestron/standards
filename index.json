@@ -6,7 +6,7 @@
         {
           "version": "2026-11-10",
           "title": "Streaming lakehouse on Databricks",
-          "summary": "Streaming tables that read each new file once, silver cleansed, checked and kept to the latest row per key, and gold materialised views, retried and alerted on failure.",
+          "summary": "Streaming tables that read each new file once, silver cleansed, checked and kept to the latest row per key, and gold materialised views, retried and alerted on failure, with roles granted and sensitive columns masked.",
           "packs": [
             "databricks@2"
           ],

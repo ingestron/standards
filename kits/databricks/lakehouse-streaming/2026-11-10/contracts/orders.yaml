@@ -3,6 +3,8 @@ kind: DataContract
 id: shop.orders
 version: 1.0.0
 status: active
+roles:
+  - { role: shop-analysts, access: read }
 schema:
   - name: orders
     logicalType: object

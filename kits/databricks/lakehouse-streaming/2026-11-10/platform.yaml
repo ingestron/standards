@@ -10,6 +10,9 @@ alerts:
     on: [failure]
     # The address told when a run fails, such as data-team@example.com
     to: [REPLACE_ME]
+principals:
+  # The group that holds the contracts' role shop-analysts, and so reads the tables, such as marketing-analysts
+  shop-analysts: REPLACE_ME
 databricks:
   workspace:
     host: ${values.host} # each environment's own, in project.yaml
@@ -23,3 +26,11 @@ databricks:
       group_name: ${values.analysts} # in project.yaml
   manage:
     checks: true # count the contracts' rules over all rows after each refresh
+    tags: true # set each column's classification as a tag, which the masks match
+    grants: true # grant each table's contract roles after each refresh
+    masks: true # mask the columns whose classification the standard masks
+  governance:
+    # The schema, as catalog.schema, that holds the mask functions, such as main.governance
+    functions: REPLACE_ME
+    unmasked:
+      - ${values.engineers} # sees real values, as the run_as identity does

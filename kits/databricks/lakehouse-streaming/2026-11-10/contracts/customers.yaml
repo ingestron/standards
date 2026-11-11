@@ -9,5 +9,6 @@ schema:
     description: Web shop customers, a row each time a customer is exported.
     properties:
       - { name: id, logicalType: integer, required: true, primaryKey: true }
-      - { name: email, logicalType: string, required: true }
+      - { name: email, logicalType: string, required: true, classification: confidential }
+      - { name: phone, logicalType: string, classification: restricted }
       - { name: updated_at, logicalType: timestamp, required: true }

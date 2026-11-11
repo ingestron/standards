@@ -1,7 +1,7 @@
 apiVersion: ingestron.io/v1
 kind: Standard
 id: lakehouse-streaming
-description: Customers into bronze as they arrive, with audit columns and rescued data; orders cleansed, checked and kept to the latest row per key in silver, with audit columns and the rows checks leave out kept apart; gold materialised views, checked; retried and alerted on failure.
+description: Customers into bronze as they arrive, with audit columns and rescued data; orders cleansed, checked and kept to the latest row per key in silver, with audit columns and the rows checks leave out kept apart; gold materialised views, checked; retried and alerted on failure; contract roles granted on silver and gold, and confidential and restricted columns masked.
 packs: [databricks@2]
 features: ga
 origin:
@@ -15,6 +15,7 @@ layers:
     does: raw # every row as it arrived; checks only count
     audit: [loaded_at, source_file]
     rescued: true
+    access: { contract: false } # raw rows are for the engineers who load them: no contract role is granted
   - name: silver
     does: [cleanse, deduplicate, check, quarantine]
     history: latest
@@ -38,3 +39,12 @@ operations:
   timeout: 2h
   concurrency: { max_runs: 1, queue: true }
   alerts: { on: [failure] } # who is told is in platform.yaml
+governance:
+  classification:
+    values: [public, internal, confidential, restricted] # what a contract column may be classified as
+    sensitive: [confidential, restricted] # a contract with such a column should name who may read it
+  access:
+    grants: additive # a table's contract roles are granted; nothing else is taken away
+  masks:
+    confidential: hash # readers see a hash of the text
+    restricted: "null" # readers see null; quoted, as a bare null is the same mask

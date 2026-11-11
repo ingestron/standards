@@ -8,6 +8,9 @@ Orders skip `bronze`: the changes as received are kept in `silver` beside the
 current rows. The `gold` layer holds order totals per customer and day,
 checked. One Lakeflow pipeline builds the tables, and one job refreshes it
 each day, tries again when it fails and mails your team when it still fails.
+The contracts name who may read the order and sales tables, and the shop's
+email and phone numbers are masked for everyone but the engineers who run the
+pipeline.
 
 This kit is version 2026-11-10. It uses only Databricks features that are
 generally available.
@@ -15,13 +18,13 @@ generally available.
 | File                          | What it shows                                                                            |
 | ----------------------------- | ---------------------------------------------------------------------------------------- |
 | `standard.yaml`               | The layers, what each one does and keeps, and how the job runs                           |
-| `platform.yaml`               | The schedule, who is told of failures, and the `databricks:` part                        |
+| `platform.yaml`               | The schedule, who is told of failures, who the roles are, and the `databricks:` part     |
 | `project.yaml`                | The `dev` and `prod` environments and their own values                                   |
 | `connections/shop.yaml`       | The volume the shop's files land in                                                      |
 | `flows/customers.yaml`        | `customers/` becomes the streaming table `bronze.customers`                              |
 | `flows/orders.yaml`           | `orders/` becomes `silver.orders`, the latest row per order, and `silver.orders_changes` |
 | `transforms/daily_sales.yaml` | SQL over both, kept as the materialised view `gold.daily_sales`                          |
-| `contracts/*.yaml`            | ODCS contracts: the columns, their types, the key and the checks                         |
+| `contracts/*.yaml`            | ODCS contracts: the columns, their types, the key, the checks, the roles and the classes |
 
 ## Start a project from this kit
 
@@ -43,6 +46,8 @@ hover says where to find it.
 | `project.yaml`, `landing` in `dev` and `prod` | The volume the files land in, such as `/Volumes/dev_sales/landing/shop`, from Catalog Explorer |
 | `platform.yaml`, `alerts` `to`                | The address told when a run fails, such as your team's shared mailbox                          |
 | `platform.yaml`, `service_principal_name`     | The application ID of the service principal the pipeline and job run as                        |
+| `platform.yaml`, `principals`                 | The group that the role `shop-analysts` stands for, such as `marketing-analysts`               |
+| `platform.yaml`, `governance` `functions`     | The schema, as `catalog.schema`, that holds the mask functions, such as `main.governance`      |
 
 Find the service principal and the groups in your workspace under Settings,
 then Identity and access, then Manage next to Service principals or Groups.
@@ -54,8 +59,10 @@ ingestron plan
 
 The plan lists the files Ingestron would write. It says how many values are
 still `REPLACE_ME`; `ingestron check` fails until each one is written. When
-none is left, run `ingestron apply` and deploy the bundle in `build/databricks`
-with `databricks bundle deploy -t dev`.
+none is left, run `ingestron request --env dev`. It lists what an administrator
+must create before the first deploy, such as the governed tag the masks match
+(see `governance` below). Then run `ingestron apply` and deploy the bundle in
+`build/databricks` with `databricks bundle deploy -t dev`.
 
 ## What the Standard decides
 
@@ -78,6 +85,8 @@ and a transform's table goes in the layer it names.
 | `quality`    | `required: drop`, `results: true`                         | Rows missing a required value are left out in the layers whose `does` lists `check`; the event log is kept as a table. |
 |              | `silver`: `quarantine: true`                              | Changes a check leaves out are kept in `silver.orders_quarantine`.                                                     |
 | `operations` | retries, timeout, concurrency and alerts                  | The refresh job's retries, time limit, queue and failure emails.                                                       |
+| `governance` | `classification`, `access`, `masks`                       | Columns are tagged with their class, the contracts' roles are granted, and two classes are masked.                     |
+|              | `bronze`: `access: { contract: false }`                   | The contracts' roles are not granted on `bronze` tables.                                                               |
 
 ### `layers` and `does`
 
@@ -236,6 +245,61 @@ Sources, accessed 2026-11-09:
 [Configure a job](https://docs.databricks.com/aws/en/jobs/configure-job) and
 [Job notifications](https://docs.databricks.com/aws/en/jobs/notifications).
 
+### `governance`
+
+`governance` says how the tables' data is classified, who may read it and what
+is hidden from whom. Ingestron writes each as plain SQL, and the refresh job
+runs it after each refresh. Nothing else changes in the files.
+
+- `classification` lists the classes a contract's column may have:
+  `public`, `internal`, `confidential` and `restricted`. A column says its
+  class with `classification`, as `email` does in `contracts/customers.yaml`
+  (`confidential`) and `phone` does (`restricted`). `sensitive` names the
+  classes that need care, `confidential` and `restricted`: a contract with
+  such a column should say who may read it. Ingestron sets each class as a
+  tag on its column. The key of the tag is `classification`, which you can
+  change with `classification: tag`.
+- `access: grants: additive` grants each table the roles its contract names,
+  here `shop-analysts` with `access: read` in `contracts/orders.yaml` and
+  `contracts/daily_sales.yaml`. Read becomes `GRANT SELECT` on the table. The
+  Platform says who `shop-analysts` is (`principals`, below). Additive means
+  Ingestron never takes a privilege away. Write `exact` instead to have the job
+  revoke every privilege granted directly on a table that its contract does not
+  give. Ingestron never revokes ownership, an inherited privilege, or the
+  privileges of the `run_as` identity and the `unmasked` principals.
+- `masks` hides the value of a column from everyone who is not exempt:
+  `confidential: hash` shows a hash of the text, and `restricted: "null"` shows
+  null. Write `"null"` in quotes. A name that is not `null`, `hash` or `redact`
+  is taken as a function of your own. Here that hides `email` in
+  `bronze.customers` and `gold.daily_sales`, and `phone` in `bronze.customers`.
+  A mask is a Unity Catalog column mask policy that matches the class tag.
+  Each policy lets the `run_as` identity see real values, so the pipeline
+  never reads masked data and writes it on, and `unmasked` in the Platform adds
+  the people who may see them too.
+- `bronze` has `access: { contract: false }`: the roles of the contracts are
+  not granted on `bronze` tables. Its rows are raw, as they arrived, and are
+  for the engineers who load them. `shop-analysts` reads `silver.orders` and
+  `gold.daily_sales`. `silver.orders_changes` and `silver.orders_quarantine`
+  have no grants, because their contract names no role for them. Their masks,
+  if their contract had classified columns, would still apply.
+
+Who may read is separate from what they see. A reader of `gold.daily_sales`
+sees the hash of each email, and an engineer sees real emails.
+
+Masks and grants are off in the Platform until you turn them on, which
+`platform.yaml` does (below). The kit does not use row filters,
+`governance.filters`.
+
+Sources, accessed 2026-11-11:
+[Attribute-based access control](https://docs.databricks.com/aws/en/data-governance/unity-catalog/abac/)
+(updated 2026-10-22),
+[Create and manage row filter and column mask policies](https://docs.databricks.com/aws/en/data-governance/unity-catalog/abac/policies),
+[Requirements, quotas, and limitations](https://docs.databricks.com/aws/en/data-governance/unity-catalog/abac/requirements),
+[Governed tags](https://docs.databricks.com/aws/en/admin/governed-tags/)
+(updated 2026-10-12) and
+[Manage privileges in Unity Catalog](https://docs.databricks.com/aws/en/data-governance/unity-catalog/manage-privileges/)
+(updated 2026-10-15).
+
 ## Each customer counted once
 
 `bronze.customers` keeps every row the shop exports, and the shop exports every
@@ -268,8 +332,32 @@ Databricks is under `databricks:`.
   `ingestron init --set engineers=<group>` sets one without the other.
 - `dev` deploys in development mode: names carry your user name and the
   schedule is paused. `prod` deploys in production mode.
+- `principals` says who each role of the contracts is. The contracts name the
+  role `shop-analysts`; write the group, as Databricks names it, that should read
+  the tables. A role with no entry is granted as written.
+- `manage` turns on what Ingestron may do in your workspace, and each is off
+  until you turn it on. `checks` counts the contracts' rules over all rows.
+  `tags` sets each column's class as a tag. `grants` grants the tables to the
+  roles' principals. `masks` makes the mask policies. Masks need `tags`: a
+  policy finds a column by its class tag.
+- `governance` holds `functions`, the schema, as `catalog.schema`, where
+  Ingestron creates the mask functions it needs, here `ingestron_mask_hash` and
+  `ingestron_mask_null`; and `unmasked`, the groups that see real values, as
+  `run_as` does. The kit lists `engineers`, so the people who load the raw rows
+  can see them. Remove that line if you do not want that, and add a group of
+  stewards if you do.
 
-Sources, accessed 2026-11-10:
+The policies need Databricks Runtime 16.4 or later, or serverless compute, to
+make and to read a table, and Unity Catalog allows at most 100 policies on a
+schema, 50 on a table and 20 principals to exempt. The kit stays far under all of them.
+The policies match governed tags, which an account administrator creates in
+Catalog Explorer with the values of the standard, `public`, `internal`,
+`confidential` and `restricted`, and which the `run_as` identity needs `ASSIGN`
+on. `ingestron request` lists this, and `prerequisites/<environment>.sql` has
+the privileges `run_as` needs on the schema of `functions`. A plain tag, which
+`tags` alone sets, needs no administrator.
+
+Sources, accessed 2026-11-10, and for the policies' requirements 2026-11-11:
 [Specify a run identity](https://docs.databricks.com/aws/en/dev-tools/bundles/run-as),
 [Set permissions for resources in bundles](https://docs.databricks.com/aws/en/dev-tools/bundles/permissions)
 and [Deployment modes](https://docs.databricks.com/aws/en/dev-tools/bundles/deployment-modes).
@@ -281,5 +369,9 @@ This folder is your project now. Change it as you like and keep it in Git.
 - Change the contracts to match your files, and `object` in each flow to the
   folder under the volume.
 - Change `catalog` in `standard.yaml` to your catalogs' names.
+- Classify your own columns with `classification`, name the roles in each
+  contract, and say who they are in `principals`.
+- Write `exact` for `access: grants` if the job should also take away
+  privileges the contracts do not give.
 - Run `ingestron plan` after each change. It lists what Ingestron would write
   and reports anything the pack cannot apply.
