@@ -3,6 +3,15 @@
   "version": "1.0.0",
   "description": "Ingestron's dated standards (kits): small projects to start from, each checked against the packs.",
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ingestron/standards.git"
+  },
+  "homepage": "https://docs.ingestron.io",
+  "bugs": {
+    "url": "https://github.com/ingestron/standards/issues",
+    "email": "hello@ingestron.io"
+  },
   "author": "Ingestron <hello@ingestron.io>",
   "type": "module",
   "engines": {
@@ -22,5 +31,8 @@
     "@ingestron/core": "^1.1.0",
     "ajv": "8.20.0",
     "yaml": "2.9.1"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
