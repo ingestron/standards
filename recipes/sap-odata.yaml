@@ -15,7 +15,7 @@ ask:
 
     With curl, replace USER with the user's name and run the command. curl asks for the password, so it is not typed into the command or saved:
 
-        curl --user USER -H "Accept: application/xml" -o "sources/{connection}.catalog.xml" '{service}/$metadata'
+        curl --create-dirs --user USER -H "Accept: application/xml" -o "sources/{connection}.catalog.xml" '{service}/$metadata'
 
     In the Gateway Client (transaction /IWFND/GW_CLIENT), use the request URI /sap/opu/odata/sap/ followed by the service name and /$metadata, with the method GET, then copy the response into a file. With Postman, make a GET request to the URL with basic authentication and use Save Response to save it to a file. An OData V4 service gives its document at the same place: add /$metadata to the service's root URL.
 read: odata

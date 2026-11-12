@@ -14,7 +14,7 @@ ask:
 
     With curl, replace ACCESS_TOKEN with the token and run:
 
-        curl -H "Authorization: Bearer ACCESS_TOKEN" -o "sources/{connection}/{object}.json" "{instance}/services/data/v{version}/sobjects/{object}/describe"
+        curl --create-dirs -H "Authorization: Bearer ACCESS_TOKEN" -o "sources/{connection}/{object}.json" "{instance}/services/data/v{version}/sobjects/{object}/describe"
 
     With Postman, make a GET request to the URL, choose Bearer Token under Authorization, paste the token, send the request and use Save Response to save it to a file. A browser cannot send the header, so it is not enough on its own. Do not send the token to anyone: Ingestron does not need it.
 read: salesforce-describe

@@ -49,7 +49,7 @@
         "required": false
       },
       {
-        "name": "_primarycontactid_value",
+        "name": "primarycontactid",
         "sourceType": "Edm.Guid",
         "logicalType": "string",
         "required": false
@@ -186,7 +186,7 @@
         "required": false
       },
       {
-        "name": "_new_accountid_value",
+        "name": "new_accountid",
         "sourceType": "Edm.Guid",
         "logicalType": "string",
         "required": false

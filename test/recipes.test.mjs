@@ -234,6 +234,8 @@ describe("the recipes", () => {
         // The token is a placeholder, and a password is never in the command.
         assert.doesNotMatch(ask.how, /Bearer [A-Za-z0-9._~+/-]{30,}/);
         assert.doesNotMatch(ask.how, /--user \S+:|-u \S+:/);
+        // The folder under sources/ may not exist yet.
+        assert.match(ask.how, /curl --create-dirs /);
       });
 
     it("salesforce calls the REST API's describe once for each object, with the instance and version", () => {
@@ -272,6 +274,16 @@ describe("the recipes", () => {
       assert.equal(recipe.ask.call, "{organisation}/api/data/v9.2/$metadata");
       assert.equal(recipe.ask.save, "sources/{connection}.catalog.xml");
       assert.deepEqual(Object.keys(recipe.inputs), ["organisation"]);
+    });
+
+    it("dataverse names a lookup column <name>, as the copy tools do, not _<name>_value", () => {
+      const recipe = recipeOf("dataverse");
+      assert.deepEqual(recipe.columnNames, { match: "^_(.+)_value$", to: "$1" });
+      const { files, document } = importResult("dataverse");
+      assert.match(files[0].contents, /_primarycontactid_value/);
+      const names = document.tables.flatMap((table) => table.columns.map((column) => column.name));
+      assert.ok(names.includes("primarycontactid") && names.includes("new_accountid"));
+      assert.ok(names.every((name) => !/^_.*_value$/.test(name)));
     });
 
     it("sap-odata downloads the service's $metadata, with tables named after entity sets", () => {

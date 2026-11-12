@@ -15,11 +15,14 @@ ask:
 
     With curl, replace ACCESS_TOKEN with an access token for the environment and run:
 
-        curl -H "Authorization: Bearer ACCESS_TOKEN" -H "Accept: application/xml" -H "OData-MaxVersion: 4.0" -H "OData-Version: 4.0" -o "sources/{connection}.catalog.xml" '{organisation}/api/data/v9.2/$metadata'
+        curl --create-dirs -H "Authorization: Bearer ACCESS_TOKEN" -H "Accept: application/xml" -H "OData-MaxVersion: 4.0" -H "OData-Version: 4.0" -o "sources/{connection}.catalog.xml" '{organisation}/api/data/v9.2/$metadata'
 
     With Postman, make a GET request to the URL with the same Accept and OData headers and a Bearer token, send it and use Save Response to save it to a file. Do not send the token to anyone: Ingestron does not need it.
 read: odata
 objects: types
+# $metadata names a lookup column _<name>_value (the Web API properties page, "Lookup properties").
+# Azure Data Factory and Fabric copy it as <name>, which is the name the flows read.
+columnNames: { match: '^_(.+)_value$', to: '$1' }
 names: { parts: 1, caseSensitive: true }
 sources:
   - { url: "https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/web-api-service-documents", read: 2026-11-12 }
