@@ -1,0 +1,29 @@
+id: sap-odata
+title: SAP OData service
+kind: document
+inputs:
+  service: { description: "The root URL of the OData service, such as https://sapgateway.example.com:44300/sap/opu/odata/sap/API_SALES_ORDER_SRV" }
+ask:
+  who: Someone who can call the OData service on the SAP system that holds the data, such as a Basis or Gateway administrator
+  access: A user the service lets in. The service must be active in the Gateway (transaction /IWFND/MAINT_SERVICE), and the user needs the authorisation object S_SERVICE for the service's technical name, which the user's role gives. Ask for each service the flows read from, custom Z services included, and use a user whose role shows the custom fields.
+  call: "{service}/$metadata"
+  save: sources/{connection}.catalog.xml
+  how: |
+    The response is the service's metadata document, which is XML. It lists the service's entity sets, their properties and their keys, and holds no data. Save it as the file above. A connection reads one service, so a project that reads several services has one connection, and one file, for each.
+
+    In a browser, sign in, open the URL and save the page as an XML file.
+
+    With curl, replace USER with the user's name and run the command. curl asks for the password, so it is not typed into the command or saved:
+
+        curl --user USER -H "Accept: application/xml" -o "sources/{connection}.catalog.xml" '{service}/$metadata'
+
+    In the Gateway Client (transaction /IWFND/GW_CLIENT), use the request URI /sap/opu/odata/sap/ followed by the service name and /$metadata, with the method GET, then copy the response into a file. With Postman, make a GET request to the URL with basic authentication and use Save Response to save it to a file. An OData V4 service gives its document at the same place: add /$metadata to the service's root URL.
+read: odata
+names: { parts: 1, caseSensitive: true }
+sources:
+  - { url: "https://help.sap.com/saphelp_em92/helpdata/en/91/ed08ce6f4d1014b6dd926db0e91070/content.htm", read: 2026-11-12 }
+  - { url: "https://help.sap.com/doc/saphelp_nw75/7.5.5/en-US/34/1823349ed04df1813197f2a0d71db2/content.htm", read: 2026-11-12 }
+  - { url: "https://help.sap.com/docs/ABAP_PLATFORM_NEW/fc4c71aa50014fd1b43721701471913d/418549c2729c4b4dab973e90f5009f32.html", read: 2026-11-12 }
+  - { url: "https://help.sap.com/doc/saphelp_nw74/7.4.16/en-us/d3/dd22512c312314e10000000a44176d/content.htm", read: 2026-11-12 }
+  - { url: "https://www.odata.org/documentation/odata-version-2-0/overview/", read: 2026-11-12 }
+  - { url: "https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/odata-csdl-xml-v4.01.html", read: 2026-11-12 }

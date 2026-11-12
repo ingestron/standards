@@ -19,11 +19,12 @@ kit does, why each choice was made and what you must fill in.
 ## Find a recipe
 
 A recipe says how to get the metadata of one kind of source: the query its
-team runs, how Ingestron reads the result, how the source names a table and how
-its types map to logical types. Recipes live in `recipes/<id>.yaml`. The
-first ones are `sqlserver`, `oracle`, `mysql`, `postgresql` and `sample`. Each
-lists the vendor documentation it comes from, with the date it was read.
-Ingestron never connects to a source: someone with access runs the query and
+team runs or the API call it makes, how Ingestron reads the result, how the
+source names a table and how its types map to logical types. Recipes live in
+`recipes/<id>.yaml`. The first ones are `sqlserver`, `oracle`, `mysql`,
+`postgresql`, `salesforce`, `dataverse`, `sap-odata` and `sample`. Each lists
+the vendor documentation it comes from, with the date it was read. Ingestron
+never connects to a source: someone with access runs the query or the call and
 saves the result under `sources/`.
 
 ## Start a project from a kit

@@ -1,11 +1,14 @@
 // The source recipes in recipes/: each is read by core's readSourceRecipe, and each is tried on a
-// synthetic result file, written exactly as the recipe's query returns it (test/recipes/<id>/
-// result.csv). The test imports it with core's public importSource and compares the tables of the
-// document it writes with test/recipes/<id>/expected.json. The result files hold only invented
-// names, so the test needs no source and no network. The recipe check script is tested here too.
+// synthetic result file, written exactly as the recipe's query or call returns it (test/recipes/
+// <id>/result.csv, .xml or .json). A recipe whose call is made once for each object, as Salesforce's
+// is, has one file for each object in test/recipes/<id>/results/<object>.json. The test imports
+// them with core's public importSource, as the CLI would, and compares the tables of the document
+// it writes with test/recipes/<id>/expected.json. The result files hold only invented names and
+// values, so the test needs no source and no network. The recipe check script is tested here too.
 import assert from "node:assert/strict";
 import {
   cpSync,
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readdirSync,
@@ -38,26 +41,61 @@ const COLUMNS_FIELDS = [
 ];
 
 const DATABASES = ["sqlserver", "oracle", "mysql", "postgresql"];
+const APPLICATIONS = ["salesforce", "dataverse", "sap-odata"];
 const IMPORTED_AT = "2026-11-12T09:30:00Z";
+
+/** The connection each recipe is tried with: the databases use `erp`. */
+const CONNECTIONS = { sample: "landing", salesforce: "crm", dataverse: "crm", "sap-odata": "erp" };
+
+/** A custom object or table, and a custom field, that each application's result holds. */
+const CUSTOM = {
+  salesforce: { object: "Invoice_Line__c", column: "Amount__c" },
+  dataverse: { object: "new_project", column: "new_budget" },
+  "sap-odata": { object: "OrderItems", column: "ZZ_CustomRemark" },
+};
 
 const recipeFile = (id) => join(repo, "recipes", `${id}.yaml`);
 const caseFile = (id, name) => join(repo, "test", "recipes", id, name);
 const recipeOf = (id) => readSourceRecipe(readFileSync(recipeFile(id), "utf8"), `recipes/${id}.yaml`);
 
-/** Imports the recipe's result file at the path the recipe says to save it, as the CLI would. */
+/** The result files of a recipe: one for each object, or the one `result.<ext>`. */
+function resultFiles(id) {
+  const folder = caseFile(id, "results");
+  if (existsSync(folder))
+    return readdirSync(folder)
+      .sort()
+      .map((name) => ({ path: join(folder, name), object: name.slice(0, name.lastIndexOf(".")) }));
+  const name = readdirSync(caseFile(id, "")).find((file) => file.startsWith("result."));
+  return [{ path: caseFile(id, name), object: id === "sample" ? "orders" : "" }];
+}
+
+/**
+ * Imports the recipe's result files at the paths the recipe says to save them, one after the other,
+ * each into the document the one before made, as the CLI would.
+ */
 function importResult(id) {
   const recipe = recipeOf(id);
-  const connection = id === "sample" ? "landing" : "erp";
-  const file = recipe.ask.save.replace("{connection}", connection).replace("{object}", "orders");
-  const result = importSource({
-    connection,
-    file,
-    contents: readFileSync(caseFile(id, "result.csv"), "utf8"),
-    recipe,
-    at: IMPORTED_AT,
-  });
-  assert.ok("text" in result, `the import was refused: ${JSON.stringify(result)}`);
-  return { recipe, file, result, document: parse(result.text) };
+  const connection = CONNECTIONS[id] ?? "erp";
+  let text;
+  const notes = [];
+  const files = [];
+  for (const { path, object } of resultFiles(id)) {
+    const file = recipe.ask.save.replace("{connection}", connection).replace("{object}", object);
+    const contents = readFileSync(path, "utf8");
+    const result = importSource({
+      connection,
+      current: text,
+      file,
+      contents,
+      recipe,
+      at: IMPORTED_AT,
+    });
+    assert.ok("text" in result, `the import was refused: ${JSON.stringify(result)}`);
+    text = result.text;
+    notes.push(...result.notes);
+    files.push({ file, object, contents });
+  }
+  return { recipe, connection, files, notes, text, document: parse(text) };
 }
 
 describe("the recipes", () => {
@@ -65,36 +103,47 @@ describe("the recipes", () => {
     .filter((name) => name.endsWith(".yaml"))
     .map((name) => name.slice(0, -".yaml".length));
 
-  it("are the four databases and the sample", () => {
-    assert.deepEqual(ids, ["mysql", "oracle", "postgresql", "sample", "sqlserver"]);
+  it("are the four databases, three applications and the sample", () => {
+    assert.deepEqual(ids, [
+      "dataverse",
+      "mysql",
+      "oracle",
+      "postgresql",
+      "salesforce",
+      "sample",
+      "sap-odata",
+      "sqlserver",
+    ]);
   });
 
   for (const id of ids) {
     describe(id, () => {
       it("imports its synthetic result into the tables in expected.json", () => {
-        const { document, result } = importResult(id);
+        const { document, notes } = importResult(id);
         const expected = JSON.parse(readFileSync(caseFile(id, "expected.json"), "utf8"));
         const tables = document.tables.map(({ object, columns }) => ({ object, columns }));
         assert.deepEqual(tables, expected);
-        assert.deepEqual(result.notes, [], "every type in the result is one the recipe maps");
+        assert.deepEqual(notes, [], "every type in the result is one the recipe maps");
       });
 
       it("records where each table came from", () => {
-        const { document, recipe, file } = importResult(id);
+        const { document, recipe, files } = importResult(id);
         for (const table of document.tables)
           assert.deepEqual(table.captured, {
             at: IMPORTED_AT,
             from: recipe.kind,
             recipe: id,
-            file,
+            // A recipe with one file for each object saves each table's own; any other, one file.
+            file:
+              files.length === 1 ? files[0].file : files.find((it) => it.object === table.object).file,
           });
         assert.deepEqual(document.names, recipe.names);
       });
 
       if (id === "sample")
         it("keeps no value from the sample's rows", () => {
-          const { result } = importResult(id);
-          assert.doesNotMatch(result.text, /ZZ-SECRET-42|Fabrikam/);
+          const { text } = importResult(id);
+          assert.doesNotMatch(text, /ZZ-SECRET-42|Fabrikam/);
         });
       else
         // A catalog result holds no row of data, so no value can be planted in it: the test
@@ -124,6 +173,28 @@ describe("the recipes", () => {
     });
   }
 
+  for (const id of APPLICATIONS) {
+    describe(`${id}'s result`, () => {
+      const custom = CUSTOM[id];
+
+      it("has a custom object or table and a custom field", () => {
+        const { document } = importResult(id);
+        const table = document.tables.find((it) => it.object === custom.object);
+        assert.ok(table, `${custom.object} is in the tables`);
+        assert.ok(table.columns.some((column) => column.name === custom.column));
+      });
+
+      // The result's labels, picklist values, defaults and descriptions are in it to be left out:
+      // each carries `ZZ-` and a capital, which no name or type does. The test pins that they are
+      // there, so that it is a test of what the import leaves out.
+      it("keeps no label, value, default or description from the result", () => {
+        const { files, text } = importResult(id);
+        for (const { contents } of files) assert.match(contents, /ZZ-[A-Z]/);
+        assert.doesNotMatch(text, /ZZ-[A-Z]/);
+      });
+    });
+  }
+
   for (const id of DATABASES) {
     describe(`${id}'s query`, () => {
       const recipe = recipeOf(id);
@@ -150,6 +221,69 @@ describe("the recipes", () => {
       });
     });
   }
+
+  describe("the applications' asks", () => {
+    for (const id of APPLICATIONS)
+      it(`${id} says who, the access, the call and how to save the response`, () => {
+        const { ask, kind } = recipeOf(id);
+        assert.ok(kind === "catalog" || kind === "document");
+        assert.ok(ask.who && ask.access && ask.call);
+        assert.equal(ask.run, undefined);
+        assert.match(ask.how, /curl/);
+        assert.match(ask.how, /Postman/);
+        // The token is a placeholder, and a password is never in the command.
+        assert.doesNotMatch(ask.how, /Bearer [A-Za-z0-9._~+/-]{30,}/);
+        assert.doesNotMatch(ask.how, /--user \S+:|-u \S+:/);
+      });
+
+    it("salesforce calls the REST API's describe once for each object, with the instance and version", () => {
+      const recipe = recipeOf("salesforce");
+      assert.equal(recipe.kind, "catalog");
+      assert.equal(recipe.read, "salesforce-describe");
+      assert.equal(recipe.ask.call, "{instance}/services/data/v{version}/sobjects/{object}/describe");
+      assert.equal(recipe.ask.save, "sources/{connection}/{object}.json");
+      assert.deepEqual(Object.keys(recipe.inputs), ["instance", "version"]);
+      assert.deepEqual(recipe.names, { parts: 1, caseSensitive: false });
+      assert.match(recipe.ask.access, /API Enabled/);
+    });
+
+    it("salesforce replaces only its own object when one describe is imported again", () => {
+      const recipe = recipeOf("salesforce");
+      const { text, files } = importResult("salesforce");
+      const again = files.find((it) => it.object === "Account");
+      const result = importSource({
+        connection: "crm",
+        current: text,
+        file: again.file,
+        contents: again.contents,
+        recipe,
+        at: "2026-11-13T10:00:00Z",
+      });
+      assert.ok("text" in result);
+      assert.deepEqual(result.changes, []);
+      assert.equal(parse(result.text).tables.length, files.length);
+    });
+
+    it("dataverse downloads the Web API's $metadata, with tables named after entity types", () => {
+      const recipe = recipeOf("dataverse");
+      assert.equal(recipe.kind, "document");
+      assert.equal(recipe.read, "odata");
+      assert.equal(recipe.objects, "types");
+      assert.equal(recipe.ask.call, "{organisation}/api/data/v9.2/$metadata");
+      assert.equal(recipe.ask.save, "sources/{connection}.catalog.xml");
+      assert.deepEqual(Object.keys(recipe.inputs), ["organisation"]);
+    });
+
+    it("sap-odata downloads the service's $metadata, with tables named after entity sets", () => {
+      const recipe = recipeOf("sap-odata");
+      assert.equal(recipe.kind, "document");
+      assert.equal(recipe.read, "odata");
+      assert.equal(recipe.objects, undefined);
+      assert.equal(recipe.ask.call, "{service}/$metadata");
+      assert.equal(recipe.ask.save, "sources/{connection}.catalog.xml");
+      assert.deepEqual(Object.keys(recipe.inputs), ["service"]);
+    });
+  });
 
   describe("sample", () => {
     it("asks for one file for each table, with no query", () => {
@@ -182,7 +316,16 @@ describe("check-recipes", () => {
   it("passes every recipe in this repository", () => {
     const result = runScript("check-recipes.mjs", repo);
     assert.equal(result.status, 0, result.output);
-    for (const id of ["sqlserver", "oracle", "mysql", "postgresql", "sample"])
+    for (const id of [
+      "sqlserver",
+      "oracle",
+      "mysql",
+      "postgresql",
+      "salesforce",
+      "dataverse",
+      "sap-odata",
+      "sample",
+    ])
       assert.match(result.output, new RegExp(`ok +recipes/${id}\\.yaml`));
   });
 

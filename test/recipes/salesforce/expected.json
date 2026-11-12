@@ -1,0 +1,346 @@
+[
+  {
+    "object": "Account",
+    "columns": [
+      {
+        "name": "Id",
+        "sourceType": "id",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 18
+        },
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "IsDeleted",
+        "sourceType": "boolean",
+        "logicalType": "boolean",
+        "required": true
+      },
+      {
+        "name": "MasterRecordId",
+        "sourceType": "reference",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 18
+        },
+        "required": false
+      },
+      {
+        "name": "Name",
+        "sourceType": "string",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 255
+        },
+        "required": true
+      },
+      {
+        "name": "Type",
+        "sourceType": "picklist",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 255
+        },
+        "required": false
+      },
+      {
+        "name": "BillingAddress",
+        "sourceType": "address",
+        "logicalType": "object",
+        "required": false
+      },
+      {
+        "name": "BillingLatitude",
+        "sourceType": "double",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 18,
+          "scale": 15
+        },
+        "required": false
+      },
+      {
+        "name": "Phone",
+        "sourceType": "phone",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 40
+        },
+        "required": false
+      },
+      {
+        "name": "Website",
+        "sourceType": "url",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 255
+        },
+        "required": false
+      },
+      {
+        "name": "Description",
+        "sourceType": "textarea",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 32000
+        },
+        "required": false
+      },
+      {
+        "name": "NumberOfEmployees",
+        "sourceType": "int",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "AnnualRevenue",
+        "sourceType": "currency",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 18,
+          "scale": 0
+        },
+        "required": false
+      },
+      {
+        "name": "CreatedDate",
+        "sourceType": "datetime",
+        "logicalType": "timestamp",
+        "required": true
+      },
+      {
+        "name": "LastActivityDate",
+        "sourceType": "date",
+        "logicalType": "date",
+        "required": false
+      },
+      {
+        "name": "Tier__c",
+        "sourceType": "picklist",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 255
+        },
+        "required": false
+      }
+    ]
+  },
+  {
+    "object": "Document",
+    "columns": [
+      {
+        "name": "Id",
+        "sourceType": "id",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 18
+        },
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "Name",
+        "sourceType": "string",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 255
+        },
+        "required": true
+      },
+      {
+        "name": "Body",
+        "sourceType": "base64",
+        "logicalType": "string",
+        "required": false
+      }
+    ]
+  },
+  {
+    "object": "Invoice_Line__c",
+    "columns": [
+      {
+        "name": "Id",
+        "sourceType": "id",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 18
+        },
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "OwnerId",
+        "sourceType": "reference",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 18
+        },
+        "required": true
+      },
+      {
+        "name": "Name",
+        "sourceType": "string",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 80
+        },
+        "required": true
+      },
+      {
+        "name": "Account__c",
+        "sourceType": "reference",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 18
+        },
+        "required": false
+      },
+      {
+        "name": "Amount__c",
+        "sourceType": "currency",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 18,
+          "scale": 2
+        },
+        "required": false
+      },
+      {
+        "name": "Quantity__c",
+        "sourceType": "double",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 8,
+          "scale": 0
+        },
+        "required": true
+      },
+      {
+        "name": "Discount_Rate__c",
+        "sourceType": "percent",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 5,
+          "scale": 2
+        },
+        "required": false
+      },
+      {
+        "name": "Contact_Email__c",
+        "sourceType": "email",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 80
+        },
+        "required": false
+      },
+      {
+        "name": "Notes__c",
+        "sourceType": "textarea",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 32768
+        },
+        "required": false
+      },
+      {
+        "name": "Region_Codes__c",
+        "sourceType": "multipicklist",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 4099
+        },
+        "required": false
+      },
+      {
+        "name": "Region__c",
+        "sourceType": "combobox",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 100
+        },
+        "required": false
+      },
+      {
+        "name": "Access_Code__c",
+        "sourceType": "encryptedstring",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 175
+        },
+        "required": false
+      },
+      {
+        "name": "Due_Date__c",
+        "sourceType": "date",
+        "logicalType": "date",
+        "required": false
+      },
+      {
+        "name": "Due_Time__c",
+        "sourceType": "time",
+        "logicalType": "time",
+        "required": false
+      },
+      {
+        "name": "Posted_At__c",
+        "sourceType": "datetime",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "Warehouse__c",
+        "sourceType": "location",
+        "logicalType": "object",
+        "required": false
+      },
+      {
+        "name": "Is_Billable__c",
+        "sourceType": "boolean",
+        "logicalType": "boolean",
+        "required": true
+      }
+    ]
+  },
+  {
+    "object": "Policy__kav",
+    "columns": [
+      {
+        "name": "Id",
+        "sourceType": "id",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 18
+        },
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "Title",
+        "sourceType": "string",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 255
+        },
+        "required": true
+      },
+      {
+        "name": "DataCategoryGroup__c",
+        "sourceType": "datacategorygroupreference",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 255
+        },
+        "required": false
+      },
+      {
+        "name": "Rendered__c",
+        "sourceType": "anyType",
+        "logicalType": "string",
+        "required": false
+      }
+    ]
+  }
+]

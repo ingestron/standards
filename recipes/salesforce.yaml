@@ -1,0 +1,37 @@
+id: salesforce
+title: Salesforce
+kind: catalog
+inputs:
+  instance: { description: "The My Domain URL of the Salesforce org, such as https://MyDomainName.my.salesforce.com" }
+  version: { description: "The REST API version the org supports, such as 68.0" }
+ask:
+  who: Someone who can call the Salesforce REST API in the org that holds the objects, such as an administrator or an integration user
+  access: The API Enabled permission, and Read access to the object. The describe lists only the fields the user can see under field-level security, so a custom field the user cannot see is left out and the response says nothing. Use a user who can see every field the flows read, for example one with View All Fields on the object.
+  call: "{instance}/services/data/v{version}/sobjects/{object}/describe"
+  save: sources/{connection}/{object}.json
+  how: |
+    Send a GET request with the header Authorization: Bearer followed by the user's access token, and save the response body as the file above. Call it once for each object. Custom objects end in __c, and the call takes the object's API name.
+
+    With curl, replace ACCESS_TOKEN with the token and run:
+
+        curl -H "Authorization: Bearer ACCESS_TOKEN" -o "sources/{connection}/{object}.json" "{instance}/services/data/v{version}/sobjects/{object}/describe"
+
+    With Postman, make a GET request to the URL, choose Bearer Token under Authorization, paste the token, send the request and use Save Response to save it to a file. A browser cannot send the header, so it is not enough on its own. Do not send the token to anyone: Ingestron does not need it.
+read: salesforce-describe
+names: { parts: 1, caseSensitive: false }
+types:
+  - { match: '^boolean$', logicalType: boolean }
+  - { match: '^int$', logicalType: integer }
+  - { match: '^(double|currency|percent)$', logicalType: number }
+  - { match: '^date$', logicalType: date }
+  - { match: '^datetime$', logicalType: timestamp }
+  - { match: '^time$', logicalType: time }
+  - { match: '^(string|textarea|picklist|multipicklist|combobox|phone|url|email|encryptedstring)$', logicalType: string }
+  - { match: '^(id|reference|base64|datacategorygroupreference|anyType)$', logicalType: string }
+  - { match: '^(address|location)$', logicalType: object }
+sources:
+  - { url: "https://developer.salesforce.com/docs/atlas.en-us.api_rest.meta/api_rest/resources_sobject_describe.htm", read: 2026-11-12 }
+  - { url: "https://developer.salesforce.com/docs/platform/api/guide/sforce-api-calls-describesobjects-describesobjectresult.html", read: 2026-11-12 }
+  - { url: "https://developer.salesforce.com/docs/platform/object-reference/guide/field-types.html", read: 2026-11-12 }
+  - { url: "https://developer.salesforce.com/docs/platform/api/guide/sforce-api-concepts-security.html", read: 2026-11-12 }
+  - { url: "https://developer.salesforce.com/docs/platform/api-rest/guide/quickstart-oauth.html", read: 2026-11-12 }

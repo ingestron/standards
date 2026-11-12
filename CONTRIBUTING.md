@@ -52,12 +52,23 @@ team runs the query and saves the result.
    row. Run no query against a real source: check the query by reading the
    vendor's documentation.
 6. Add `test/recipes/<id>/result.csv`, a synthetic result exactly as the query
-   returns it, and `test/recipes/<id>/expected.json`, the tables Ingestron
+   returns it (`result.xml` or `result.json` for a call), and `test/recipes/<id>/expected.json`, the tables Ingestron
    should write from it. The result needs a table with a key of two columns, a
    column that can be null, a decimal, a table in a second schema, and one
    column of each type the query can return, so that the import reports no
    unknown type. Use invented names only.
 7. Run the checks (below), then open a pull request.
+
+For an application, such as Salesforce, give `ask` a `call` (a URL, with each
+value only a team knows as a placeholder such as `{instance}`) in place of a
+`run` query, and write `access` as the permission or role the call needs. Say
+in `how` how to save the response from a browser, with `curl` and with Postman,
+and show a token only as a placeholder. The `read` is the reader of the
+response, such as `odata` for a `$metadata` document. Include in the synthetic
+result a custom object or table and a custom field, and values in descriptive
+fields, such as labels and picklist values, which the test checks are never
+written. A call made once for each object has one result file for each object in
+`test/recipes/<id>/results/`, named after the object.
 
 ## Run the checks
 
