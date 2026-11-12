@@ -4,10 +4,18 @@
 // document it writes with test/recipes/<id>/expected.json. The result files hold only invented
 // names, so the test needs no source and no network. The recipe check script is tested here too.
 import assert from "node:assert/strict";
-import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import {
+  cpSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
-import { describe, it } from "node:test";
+import { afterEach, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { importSource, readSourceRecipe } from "@ingestron/core";
 import { allRecipeFiles, recipeProblems, today } from "../scripts/check-recipes.mjs";
@@ -83,10 +91,36 @@ describe("the recipes", () => {
         assert.deepEqual(document.names, recipe.names);
       });
 
-      it("keeps no value from the result", () => {
-        const { result } = importResult(id);
-        assert.doesNotMatch(result.text, /ZZ-SECRET-42|Fabrikam/);
-      });
+      if (id === "sample")
+        it("keeps no value from the sample's rows", () => {
+          const { result } = importResult(id);
+          assert.doesNotMatch(result.text, /ZZ-SECRET-42|Fabrikam/);
+        });
+      else
+        // A catalog result holds no row of data, so no value can be planted in it: the test
+        // pins that what is written is only the names, types and keys the result describes.
+        it("writes only names, types and keys from a catalog result", () => {
+          const { document } = importResult(id);
+          const tableKeys = new Set(["object", "captured", "columns"]);
+          const columnKeys = new Set([
+            "name",
+            "sourceType",
+            "logicalType",
+            "logicalTypeOptions",
+            "required",
+            "primaryKeyPosition",
+          ]);
+          const optionKeys = new Set(["precision", "scale", "maxLength"]);
+          for (const table of document.tables) {
+            assert.ok(Object.keys(table).every((key) => tableKeys.has(key)));
+            for (const column of table.columns) {
+              assert.ok(Object.keys(column).every((key) => columnKeys.has(key)));
+              assert.ok(
+                Object.keys(column.logicalTypeOptions ?? {}).every((key) => optionKeys.has(key)),
+              );
+            }
+          }
+        });
     });
   }
 
@@ -129,15 +163,22 @@ describe("the recipes", () => {
   });
 });
 
-/** A copy of the repository's recipes in a new folder, which holds `recipes/`. */
+const madeFolders = [];
+
+/** A copy of the repository's sample recipe in a new folder, removed after the test. */
 function copyOfRecipes() {
   const folder = mkdtempSync(join(tmpdir(), "recipes-test-"));
+  madeFolders.push(folder);
   mkdirSync(join(folder, "recipes"));
   cpSync(recipeFile("sample"), join(folder, "recipes", "sample.yaml"));
   return folder;
 }
 
 describe("check-recipes", () => {
+  afterEach(() => {
+    for (const folder of madeFolders.splice(0)) rmSync(folder, { recursive: true, force: true });
+  });
+
   it("passes every recipe in this repository", () => {
     const result = runScript("check-recipes.mjs", repo);
     assert.equal(result.status, 0, result.output);
@@ -154,6 +195,27 @@ describe("check-recipes", () => {
     assert.equal(named.status, 0, named.output);
     assert.match(named.output, /recipes\/oracle\.yaml/);
     assert.doesNotMatch(named.output, /kits\//);
+  });
+
+  it("sends a path to the recipe check when it resolves inside recipes/, however it is written", () => {
+    const spellings = [
+      "./recipes/oracle.yaml",
+      "kits/../recipes/oracle.yaml",
+      join(repo, "recipes", "oracle.yaml"),
+    ];
+    for (const spelling of spellings) {
+      const result = runScript("check.mjs", repo, [spelling]);
+      assert.equal(result.status, 0, `${spelling}: ${result.output}`);
+      assert.match(result.output, /ok +recipes\/oracle\.yaml/, spelling);
+      assert.doesNotMatch(result.output, /kits\//, spelling);
+    }
+  });
+
+  it("sends a path outside recipes/ to the kit check, even one that starts like it", () => {
+    for (const path of ["recipes-old/oracle.yaml", "kits/duckdb/local-medallion/2026-11-10"]) {
+      const result = runScript("check.mjs", repo, [path]);
+      assert.doesNotMatch(result.output, /recipes\/oracle/, path);
+    }
   });
 
   it("fails a recipe whose id is not its file's name", () => {

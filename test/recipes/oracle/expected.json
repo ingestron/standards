@@ -1,5 +1,32 @@
 [
   {
+    "object": "HR.DEPARTMENTS",
+    "columns": [
+      {
+        "name": "DEPARTMENT_ID",
+        "sourceType": "NUMBER(4,0)",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "DEPARTMENT_NAME",
+        "sourceType": "VARCHAR2(30)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 30
+        },
+        "required": true
+      },
+      {
+        "name": "MANAGER_ID",
+        "sourceType": "NUMBER(6,0)",
+        "logicalType": "integer",
+        "required": false
+      }
+    ]
+  },
+  {
     "object": "SALES.ALL_TYPES",
     "columns": [
       {

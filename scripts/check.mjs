@@ -1,15 +1,21 @@
 // Runs the checks of both kinds of content: kits (scripts/check-kits.mjs) and recipes
 // (scripts/check-recipes.mjs). With no argument, it checks all of each. A named path that
-// starts `recipes/` goes to the recipe check and any other to the kit check, and a check
-// with no path named runs only when no path is named at all.
+// resolves, from the current folder, to a place inside the `recipes` folder goes to the
+// recipe check (so `./recipes/a.yaml`, `kits/../recipes/a.yaml` and an absolute path do too)
+// and any other to the kit check. A check with no path named runs only when no path is
+// named at all.
 // Usage, from the repository's root folder: node scripts/check.mjs [<kit folder or recipe file>...]
 import { spawnSync } from "node:child_process";
-import { dirname, join } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const named = process.argv.slice(2);
-const isRecipe = (path) => /^(\.\/)?recipes\//.test(path);
+const recipes = resolve("recipes");
+const isRecipe = (path) => {
+  const inside = relative(recipes, resolve(path));
+  return inside !== "" && !inside.startsWith("..") && !isAbsolute(inside);
+};
 const runs =
   named.length === 0
     ? [

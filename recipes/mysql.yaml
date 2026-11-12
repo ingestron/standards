@@ -32,35 +32,26 @@ ask:
 read: columns
 names: { parts: 2, caseSensitive: false }
 types:
-  - { match: '^(tinyint\(1\)|bool|boolean)( unsigned)?( zerofill)?$', logicalType: boolean }
-  - { match: '^(tinyint|smallint|mediumint|int|integer|bigint)(\(\d+\))?( unsigned)?( zerofill)?$', logicalType: integer }
+  - { match: '^tinyint\(1\)( unsigned)?( zerofill)?$', logicalType: boolean }
+  - { match: '^(tinyint|smallint|mediumint|int|bigint)(\(\d+\))?( unsigned)?( zerofill)?$', logicalType: integer }
   - { match: '^bit(\(\d+\))?$', logicalType: integer }
   - { match: '^year(\(\d+\))?$', logicalType: integer }
   - {
-      match: '^(decimal|numeric|dec|fixed)\((\d+),(\d+)\)( unsigned)?( zerofill)?$',
+      match: '^decimal\((\d+),(\d+)\)( unsigned)?( zerofill)?$',
       logicalType: number,
-      options: { precision: $2, scale: $3 },
+      options: { precision: $1, scale: $2 },
     }
-  - {
-      match: '^(decimal|numeric|dec|fixed)\((\d+)\)( unsigned)?( zerofill)?$',
-      logicalType: number,
-      options: { precision: $2, scale: 0 },
-    }
-  - {
-      match: '^(decimal|numeric|dec|fixed)( unsigned)?( zerofill)?$',
-      logicalType: number,
-      options: { precision: 10, scale: 0 },
-    }
-  - { match: '^(float|double|double precision|real)(\(\d+(,\d+)?\))?( unsigned)?( zerofill)?$', logicalType: number }
+  - { match: '^(float|double)(\(\d+,\d+\))?( unsigned)?( zerofill)?$', logicalType: number }
   - { match: '^date$', logicalType: date }
   - { match: '^(datetime|timestamp)(\(\d+\))?$', logicalType: timestamp }
   - { match: '^time(\(\d+\))?$', logicalType: time }
   - { match: '^(char|varchar)\((\d+)\)$', logicalType: string, options: { maxLength: $2 } }
-  - { match: '^(char|varchar|tinytext|text|mediumtext|longtext)(\(\d+\))?$', logicalType: string }
-  - { match: '^(binary|varbinary)(\(\d+\))?$', logicalType: string }
-  - { match: '^(tinyblob|blob|mediumblob|longblob)(\(\d+\))?$', logicalType: string }
+  - { match: '^(tinytext|text|mediumtext|longtext)$', logicalType: string }
+  - { match: '^(binary|varbinary)\(\d+\)$', logicalType: string }
+  - { match: '^(tinyblob|blob|mediumblob|longblob)$', logicalType: string }
   - { match: '^(enum|set)$', logicalType: string }
   - { match: '^json$', logicalType: object }
+  - { match: '^vector(\(\d+\))?$', logicalType: array }
   - { match: '^(geometry|point|linestring|polygon|multipoint|multilinestring|multipolygon|geometrycollection)$', logicalType: string }
 sources:
   - { url: "https://dev.mysql.com/doc/refman/8.4/en/information-schema-columns-table.html", read: 2026-11-12 }
@@ -74,3 +65,4 @@ sources:
   - { url: "https://dev.mysql.com/doc/refman/8.4/en/date-and-time-type-syntax.html", read: 2026-11-12 }
   - { url: "https://dev.mysql.com/doc/refman/8.4/en/spatial-type-overview.html", read: 2026-11-12 }
   - { url: "https://dev.mysql.com/doc/refman/8.4/en/json.html", read: 2026-11-12 }
+  - { url: "https://dev.mysql.com/doc/refman/9.5/en/vector.html", read: 2026-11-12 }

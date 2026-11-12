@@ -35,7 +35,7 @@ ask:
       JOIN sys.index_columns AS ic ON ic.object_id = i.object_id AND ic.index_id = i.index_id
       WHERE i.is_primary_key = 1 AND ic.key_ordinal > 0
     ) AS k ON k.object_id = c.object_id AND k.column_id = c.column_id
-    WHERE o.type IN ('U', 'V') AND s.name IN ({schemas})
+    WHERE o.type IN ('U', 'V') AND o.is_ms_shipped = 0 AND s.name IN ({schemas})
     ORDER BY s.name, o.name, c.column_id;
   save: sources/{connection}.catalog.csv
   how: Connect to the {database} database, run the query and export the result as CSV with a header row, using the export of your SQL client.

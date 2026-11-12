@@ -344,6 +344,12 @@
         "sourceType": "text[]",
         "logicalType": "array",
         "required": false
+      },
+      {
+        "name": "c_bpchar",
+        "sourceType": "bpchar",
+        "logicalType": "string",
+        "required": false
       }
     ]
   },

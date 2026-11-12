@@ -18,7 +18,7 @@ table_catalog,table_schema,table_name,column_name,ordinal_position,data_type,is_
 ,shop,all_types,c_bit,6,bit(8),YES,
 ,shop,all_types,c_bool,7,tinyint(1),YES,
 ,shop,all_types,c_decimal,8,"decimal(10,4)",YES,
-,shop,all_types,c_decimal_p,9,decimal(5),YES,
+,shop,all_types,c_decimal_p,9,"decimal(5,0)",YES,
 ,shop,all_types,c_float,10,float,YES,
 ,shop,all_types,c_double,11,double,YES,
 ,shop,all_types,c_float_md,12,"float(7,3)",YES,
@@ -46,3 +46,7 @@ table_catalog,table_schema,table_name,column_name,ordinal_position,data_type,is_
 ,shop,all_types,c_point,34,point,YES,
 ,shop,all_types,c_polygon,35,polygon,YES,
 ,shop,all_types,c_geometrycollection,36,geometrycollection,YES,
+,shop,all_types,c_vector,37,vector(2048),YES,
+,crm,contacts,contact_id,1,int,NO,1
+,crm,contacts,email,2,varchar(254),YES,
+,crm,contacts,joined_on,3,date,NO,

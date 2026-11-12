@@ -49,7 +49,7 @@ types:
   - { match: '^time(\(\d+\))? (with|without) time zone$', logicalType: time }
   - { match: '^interval', logicalType: string }
   - { match: '^(character varying|character)\((\d+)\)$', logicalType: string, options: { maxLength: $2 } }
-  - { match: '^(character varying|character|text|name|"char")$', logicalType: string }
+  - { match: '^(character varying|character|bpchar|text|name|"char")$', logicalType: string }
   - { match: '^bytea$', logicalType: string }
   - { match: '^(json|jsonb)$', logicalType: object }
   - { match: '^(uuid|xml)$', logicalType: string }

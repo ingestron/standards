@@ -1,5 +1,32 @@
 [
   {
+    "object": "crm.contacts",
+    "columns": [
+      {
+        "name": "contact_id",
+        "sourceType": "int",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "email",
+        "sourceType": "varchar(254)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 254
+        },
+        "required": false
+      },
+      {
+        "name": "joined_on",
+        "sourceType": "date",
+        "logicalType": "date",
+        "required": true
+      }
+    ]
+  },
+  {
     "object": "shop.all_types",
     "columns": [
       {
@@ -56,7 +83,7 @@
       },
       {
         "name": "c_decimal_p",
-        "sourceType": "decimal(5)",
+        "sourceType": "decimal(5,0)",
         "logicalType": "number",
         "logicalTypeOptions": {
           "precision": 5,
@@ -230,6 +257,12 @@
         "name": "c_geometrycollection",
         "sourceType": "geometrycollection",
         "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_vector",
+        "sourceType": "vector(2048)",
+        "logicalType": "array",
         "required": false
       }
     ]
