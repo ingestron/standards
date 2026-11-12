@@ -1,0 +1,24 @@
+id: openapi
+title: API with an OpenAPI description
+kind: document
+inputs:
+  url: { description: "The URL of the API's OpenAPI description, a JSON file, such as https://api.example.com/v1/openapi.json" }
+ask:
+  who: Someone who can reach the API's documentation, such as the API's owner or a developer on the team that builds it
+  access: Whatever the API's documentation asks of a reader. Many APIs publish the description to everyone, and some keep it behind the same sign-in as the API. The description holds no data, only the shapes of what the API sends. Ask for the description of every API the flows read from, and for the one that is current, since an API may publish one for each version.
+  call: "{url}"
+  save: sources/{connection}.openapi.json
+  how: |
+    The response is the API's description, a JSON or YAML file. Ingestron reads the schemas in it, which are the shapes of the objects the API sends and receives. It reads no data. Save the description as the file above. If the API gives only a YAML file, ask for the JSON version at the same place, often called openapi.json, or save the YAML file with the name sources/{connection}.openapi.yaml, which Ingestron reads as well. A connection reads one API, so a project that reads several APIs has one connection, and one file, for each.
+
+    In a browser, open the URL and save the page as a JSON file. Some API documentation sites have a Download or Export button for the description, which does the same.
+
+    With curl, run the command. If the API asks for a token, add -H "Authorization: Bearer ACCESS_TOKEN" with ACCESS_TOKEN replaced by the token:
+
+        curl --create-dirs -H "Accept: application/json" -o "sources/{connection}.openapi.json" "{url}"
+
+    With Postman, make a GET request to the URL, send it and use Save Response to save it to a file. Do not send a token to anyone: Ingestron does not need it.
+read: openapi
+sources:
+  - { url: "https://spec.openapis.org/oas/v3.1.1.html", read: 2026-11-12 }
+  - { url: "https://spec.openapis.org/oas/v3.0.3.html", read: 2026-11-12 }

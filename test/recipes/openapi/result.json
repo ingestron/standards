@@ -1,0 +1,78 @@
+{
+  "openapi": "3.1.0",
+  "info": { "title": "Shop API", "version": "1.4.0", "description": "ZZ-DOC The shop's public API" },
+  "servers": [{ "url": "https://api.shop.example.com/v1" }],
+  "paths": {
+    "/customers/{id}": {
+      "get": {
+        "operationId": "getCustomer",
+        "summary": "ZZ-DOC Get one customer",
+        "parameters": [{ "name": "id", "in": "path", "required": true, "schema": { "type": "integer" } }],
+        "responses": {
+          "200": {
+            "description": "ZZ-DOC The customer",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Customer" } } }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Address": {
+        "type": "object",
+        "required": ["city"],
+        "properties": {
+          "street": { "type": "string", "maxLength": 80 },
+          "city": { "type": "string", "maxLength": 40 },
+          "postcode": { "type": "string", "example": "ZZ-EXAMPLE-POSTCODE" }
+        }
+      },
+      "Customer": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "integer", "format": "int64" },
+          "name": { "type": "string", "maxLength": 100, "description": "ZZ-DOC Customer name" },
+          "segment": { "type": "string", "enum": ["ZZ-ENUM-RETAIL", "ZZ-ENUM-TRADE"], "default": "ZZ-DEFAULT-SEGMENT" },
+          "creditLimit": { "type": "number", "format": "double" },
+          "joinedOn": { "type": "string", "format": "date" },
+          "lastSeenAt": { "type": ["string", "null"], "format": "date-time" },
+          "isActive": { "type": "boolean" },
+          "homeAddress": { "$ref": "#/components/schemas/Address" },
+          "tags": { "type": "array", "items": { "type": "string" } },
+          "preferences": {
+            "type": "object",
+            "required": ["language"],
+            "properties": {
+              "language": { "type": "string" },
+              "marketing": { "type": "boolean" }
+            }
+          },
+          "x_loyalty_code": { "type": "string", "maxLength": 12 }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "required": ["orderId", "lines"],
+        "properties": {
+          "orderId": { "type": "string", "format": "uuid" },
+          "customerId": { "type": "integer" },
+          "placedAt": { "type": "string", "format": "date-time" },
+          "total": { "type": "number" },
+          "shipTo": { "$ref": "#/components/schemas/Address" },
+          "billTo": { "$ref": "#/components/schemas/Address" },
+          "lines": { "type": "array", "items": { "$ref": "#/components/schemas/OrderLine" } }
+        }
+      },
+      "OrderLine": {
+        "type": "object",
+        "properties": {
+          "sku": { "type": "string" },
+          "quantity": { "type": "integer", "example": 42 }
+        }
+      },
+      "Status": { "type": "string", "enum": ["ZZ-ENUM-OPEN", "ZZ-ENUM-CLOSED"] }
+    }
+  }
+}

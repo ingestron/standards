@@ -1,0 +1,7 @@
+{
+  "subject": "payment-events-value",
+  "version": 1,
+  "id": 207,
+  "schemaType": "JSON",
+  "schema": "{\"$schema\":\"http://json-schema.org/draft-07/schema#\",\"title\":\"PaymentEvent\",\"type\":\"object\",\"properties\":{\"paymentId\":{\"type\":\"string\",\"format\":\"uuid\"},\"orderId\":{\"type\":\"integer\",\"description\":\"ZZ-DOC The order paid\"},\"amount\":{\"type\":\"number\",\"default\":0},\"method\":{\"type\":\"string\",\"enum\":[\"ZZ-ENUM-CARD\",\"ZZ-ENUM-BANK\"],\"default\":\"ZZ-DEFAULT-CARD\"},\"paidAt\":{\"type\":\"string\",\"format\":\"date-time\"},\"refunded\":{\"type\":\"boolean\"},\"payer\":{\"type\":\"object\",\"required\":[\"name\"],\"properties\":{\"name\":{\"type\":\"string\",\"example\":\"ZZ-EXAMPLE-PAYER\"},\"email\":{\"type\":\"string\",\"maxLength\":120}}},\"references\":{\"type\":\"array\",\"items\":{\"type\":\"string\"}}},\"required\":[\"paymentId\",\"orderId\",\"amount\"]}"
+}

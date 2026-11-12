@@ -1,0 +1,205 @@
+[
+  {
+    "object": "Customers",
+    "columns": [
+      {
+        "name": "CustomerId",
+        "sourceType": "Edm.Int32",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "Name",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 100
+        },
+        "required": true
+      },
+      {
+        "name": "Segment",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "CreditLimit",
+        "sourceType": "Edm.Decimal",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 12,
+          "scale": 2
+        },
+        "required": false
+      },
+      {
+        "name": "JoinedOn",
+        "sourceType": "Edm.Date",
+        "logicalType": "date",
+        "required": false
+      },
+      {
+        "name": "IsActive",
+        "sourceType": "Edm.Boolean",
+        "logicalType": "boolean",
+        "required": false
+      },
+      {
+        "name": "HomeAddress",
+        "sourceType": "Shop.Address",
+        "logicalType": "object",
+        "required": false,
+        "properties": [
+          {
+            "name": "Street",
+            "sourceType": "Edm.String",
+            "logicalType": "string",
+            "logicalTypeOptions": {
+              "maxLength": 80
+            },
+            "required": false
+          },
+          {
+            "name": "City",
+            "sourceType": "Edm.String",
+            "logicalType": "string",
+            "logicalTypeOptions": {
+              "maxLength": 40
+            },
+            "required": true
+          },
+          {
+            "name": "PostCode",
+            "sourceType": "Edm.String",
+            "logicalType": "string",
+            "logicalTypeOptions": {
+              "maxLength": 10
+            },
+            "required": false
+          }
+        ]
+      },
+      {
+        "name": "Tags",
+        "sourceType": "Collection(Edm.String)",
+        "logicalType": "array",
+        "required": true,
+        "items": {
+          "name": "items",
+          "sourceType": "Edm.String",
+          "logicalType": "string",
+          "required": true
+        }
+      },
+      {
+        "name": "Custom_Loyalty_Code",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 12
+        },
+        "required": false
+      }
+    ]
+  },
+  {
+    "object": "Orders",
+    "columns": [
+      {
+        "name": "OrderId",
+        "sourceType": "Edm.Guid",
+        "logicalType": "string",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "CustomerId",
+        "sourceType": "Edm.Int32",
+        "logicalType": "integer",
+        "required": true
+      },
+      {
+        "name": "PlacedAt",
+        "sourceType": "Edm.DateTimeOffset",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "CutOff",
+        "sourceType": "Edm.TimeOfDay",
+        "logicalType": "time",
+        "required": false
+      },
+      {
+        "name": "Total",
+        "sourceType": "Edm.Decimal",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 14
+        },
+        "required": false
+      },
+      {
+        "name": "Weight",
+        "sourceType": "Edm.Double",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "Lines",
+        "sourceType": "Collection(Edm.Int64)",
+        "logicalType": "array",
+        "required": true,
+        "items": {
+          "name": "items",
+          "sourceType": "Edm.Int64",
+          "logicalType": "integer",
+          "required": true
+        }
+      },
+      {
+        "name": "ShipTo",
+        "sourceType": "Shop.Address",
+        "logicalType": "object",
+        "required": false,
+        "properties": [
+          {
+            "name": "Street",
+            "sourceType": "Edm.String",
+            "logicalType": "string",
+            "logicalTypeOptions": {
+              "maxLength": 80
+            },
+            "required": false
+          },
+          {
+            "name": "City",
+            "sourceType": "Edm.String",
+            "logicalType": "string",
+            "logicalTypeOptions": {
+              "maxLength": 40
+            },
+            "required": true
+          },
+          {
+            "name": "PostCode",
+            "sourceType": "Edm.String",
+            "logicalType": "string",
+            "logicalTypeOptions": {
+              "maxLength": 10
+            },
+            "required": false
+          }
+        ]
+      },
+      {
+        "name": "BillTo",
+        "sourceType": "Shop.Address",
+        "logicalType": "object",
+        "required": false
+      }
+    ]
+  }
+]

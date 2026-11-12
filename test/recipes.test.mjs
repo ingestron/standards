@@ -26,7 +26,7 @@ import { runScript } from "./fixture-repo.mjs";
 import { devDependency } from "./dev-dependency.mjs";
 
 const repo = join(dirname(fileURLToPath(import.meta.url)), "..");
-const { parse } = await devDependency("yaml");
+const { parse, stringify } = await devDependency("yaml");
 
 /** The eight fields of the columns file, in the order a query returns them. */
 const COLUMNS_FIELDS = [
@@ -42,10 +42,19 @@ const COLUMNS_FIELDS = [
 
 const DATABASES = ["sqlserver", "oracle", "mysql", "postgresql"];
 const APPLICATIONS = ["salesforce", "dataverse", "sap-odata"];
+// The recipes for any OData service, any API with an OpenAPI description, and Kafka topics.
+const SERVICES = ["odata", "openapi", "schema-registry"];
 const IMPORTED_AT = "2026-11-12T09:30:00Z";
 
 /** The connection each recipe is tried with: the databases use `erp`. */
-const CONNECTIONS = { sample: "landing", salesforce: "crm", dataverse: "crm", "sap-odata": "erp" };
+const CONNECTIONS = {
+  sample: "landing",
+  salesforce: "crm",
+  dataverse: "crm",
+  "sap-odata": "erp",
+  openapi: "shop",
+  "schema-registry": "events",
+};
 
 /** A custom object or table, and a custom field, that each application's result holds. */
 const CUSTOM = {
@@ -103,15 +112,18 @@ describe("the recipes", () => {
     .filter((name) => name.endsWith(".yaml"))
     .map((name) => name.slice(0, -".yaml".length));
 
-  it("are the four databases, three applications and the sample", () => {
+  it("are the four databases, three applications, three services and the sample", () => {
     assert.deepEqual(ids, [
       "dataverse",
       "mysql",
+      "odata",
+      "openapi",
       "oracle",
       "postgresql",
       "salesforce",
       "sample",
       "sap-odata",
+      "schema-registry",
       "sqlserver",
     ]);
   });
@@ -158,16 +170,22 @@ describe("the recipes", () => {
             "logicalTypeOptions",
             "required",
             "primaryKeyPosition",
+            "properties",
+            "items",
           ]);
           const optionKeys = new Set(["precision", "scale", "maxLength"]);
+          // A column of a document or a stream can hold fields and elements, which are checked alike.
+          const checkColumn = (column) => {
+            assert.ok(Object.keys(column).every((key) => columnKeys.has(key)));
+            assert.ok(
+              Object.keys(column.logicalTypeOptions ?? {}).every((key) => optionKeys.has(key)),
+            );
+            for (const field of column.properties ?? []) checkColumn(field);
+            if (column.items) checkColumn(column.items);
+          };
           for (const table of document.tables) {
             assert.ok(Object.keys(table).every((key) => tableKeys.has(key)));
-            for (const column of table.columns) {
-              assert.ok(Object.keys(column).every((key) => columnKeys.has(key)));
-              assert.ok(
-                Object.keys(column.logicalTypeOptions ?? {}).every((key) => optionKeys.has(key)),
-              );
-            }
+            for (const column of table.columns) checkColumn(column);
           }
         });
     });
@@ -222,8 +240,20 @@ describe("the recipes", () => {
     });
   }
 
+  describe("the services' results", () => {
+    // Each result holds a documentation text, a default, an example or an enum value that carries
+    // `ZZ-` and a capital, which no name or type does. The test pins that they are there, so that
+    // it is a test of what the import leaves out.
+    for (const id of SERVICES)
+      it(`${id} keeps no description, default, example or enum value from the result`, () => {
+        const { files, text } = importResult(id);
+        for (const { contents } of files) assert.match(contents, /ZZ-[A-Z]/);
+        assert.doesNotMatch(text, /ZZ-[A-Z]/);
+      });
+  });
+
   describe("the applications' asks", () => {
-    for (const id of APPLICATIONS)
+    for (const id of [...APPLICATIONS, ...SERVICES])
       it(`${id} says who, the access, the call and how to save the response`, () => {
         const { ask, kind } = recipeOf(id);
         assert.ok(kind === "catalog" || kind === "document");
@@ -286,6 +316,166 @@ describe("the recipes", () => {
       assert.ok(names.every((name) => !/^_.*_value$/.test(name)));
     });
 
+    it("odata downloads any service's $metadata, with tables named after entity sets", () => {
+      const recipe = recipeOf("odata");
+      assert.equal(recipe.kind, "document");
+      assert.equal(recipe.read, "odata");
+      assert.equal(recipe.objects, undefined);
+      assert.equal(recipe.ask.call, "{service}/$metadata");
+      assert.equal(recipe.ask.save, "sources/{connection}.catalog.xml");
+      assert.deepEqual(Object.keys(recipe.inputs), ["service"]);
+      assert.deepEqual(recipe.names, { parts: 1, caseSensitive: true });
+      assert.match(recipe.ask.how, /Accept: application\/xml/);
+    });
+
+    it("odata reads a key, a complex type used twice, a collection and a variable scale", () => {
+      const { document } = importResult("odata");
+      const customers = document.tables.find((table) => table.object === "Customers");
+      const orders = document.tables.find((table) => table.object === "Orders");
+      assert.deepEqual(
+        customers.columns.filter((column) => column.primaryKeyPosition).map((column) => column.name),
+        ["CustomerId"],
+      );
+      const home = customers.columns.find((column) => column.name === "HomeAddress");
+      assert.equal(home.logicalType, "object");
+      assert.deepEqual(
+        home.properties.map((field) => field.name),
+        ["Street", "City", "PostCode"],
+      );
+      const tags = customers.columns.find((column) => column.name === "Tags");
+      assert.equal(tags.logicalType, "array");
+      assert.equal(tags.items.logicalType, "string");
+      // The second use of the complex type in a table is not written out again.
+      assert.equal(orders.columns.find((column) => column.name === "ShipTo").properties.length, 3);
+      assert.equal(orders.columns.find((column) => column.name === "BillTo").properties, undefined);
+      // The navigation properties are left out.
+      assert.ok(customers.columns.every((column) => column.name !== "Orders"));
+      assert.deepEqual(orders.columns.find((column) => column.name === "Total").logicalTypeOptions, {
+        precision: 14,
+      });
+    });
+
+    it("openapi downloads the API's description, saved as sources/{connection}.openapi.json", () => {
+      const recipe = recipeOf("openapi");
+      assert.equal(recipe.kind, "document");
+      assert.equal(recipe.read, "openapi");
+      assert.equal(recipe.ask.call, "{url}");
+      assert.equal(recipe.ask.save, "sources/{connection}.openapi.json");
+      assert.deepEqual(Object.keys(recipe.inputs), ["url"]);
+    });
+
+    // The file name has no rule of its own (section 2.5 gives none for `.openapi.`), so the recipe's
+    // reader is the one that reads it. The same file with no recipe is read by its content.
+    it("openapi has its description read as OpenAPI, with the recipe or by its content alone", () => {
+      const { files, document, recipe } = importResult("openapi");
+      const { file, contents } = files[0];
+      assert.equal(file, "sources/shop.openapi.json");
+      const alone = importSource({
+        connection: "shop",
+        file,
+        contents,
+        at: IMPORTED_AT,
+      });
+      assert.ok("text" in alone, JSON.stringify(alone));
+      const tables = (text) => parse(text).tables.map(({ object, columns }) => ({ object, columns }));
+      assert.deepEqual(
+        tables(alone.text),
+        document.tables.map(({ object, columns }) => ({ object, columns })),
+      );
+      assert.equal(recipe.read, "openapi");
+    });
+
+    it("openapi reads the same description saved as YAML, as the how says it may be", () => {
+      const { recipe, files } = importResult("openapi");
+      assert.match(recipe.ask.how, /sources\/\{connection\}\.openapi\.yaml/);
+      const result = importSource({
+        connection: "shop",
+        file: "sources/shop.openapi.yaml",
+        contents: stringify(JSON.parse(files[0].contents)),
+        recipe,
+        at: IMPORTED_AT,
+      });
+      assert.ok("text" in result, JSON.stringify(result));
+      assert.deepEqual(
+        parse(result.text).tables.map(({ object }) => object),
+        ["Address", "Customer", "Order", "OrderLine"],
+      );
+    });
+
+    it("openapi follows a shared $ref, writing it out the first time in a table only", () => {
+      const { document } = importResult("openapi");
+      const order = document.tables.find((table) => table.object === "Order");
+      assert.equal(order.columns.find((column) => column.name === "shipTo").properties.length, 3);
+      const billTo = order.columns.find((column) => column.name === "billTo");
+      assert.equal(billTo.sourceType, "Address");
+      assert.equal(billTo.properties, undefined);
+      // A schema that is not an object, such as an enumeration, is not a table.
+      assert.ok(document.tables.every((table) => table.object !== "Status"));
+    });
+
+    it("schema-registry calls the latest version of each topic's value subject", () => {
+      const recipe = recipeOf("schema-registry");
+      assert.equal(recipe.kind, "catalog");
+      assert.equal(recipe.read, "avro");
+      assert.equal(recipe.ask.call, "{registry}/subjects/{object}-value/versions/latest");
+      assert.equal(recipe.ask.save, "sources/{connection}/{object}.json");
+      assert.deepEqual(Object.keys(recipe.inputs), ["registry"]);
+      assert.deepEqual(recipe.names, { parts: 1, caseSensitive: true });
+      assert.match(recipe.ask.access, /DeveloperRead/);
+    });
+
+    it("schema-registry reads an Avro response and a JSON Schema response, naming each table after its topic", () => {
+      const { files, document } = importResult("schema-registry");
+      const schemaTypes = files.map(({ contents }) => JSON.parse(contents).schemaType);
+      assert.deepEqual(schemaTypes, [undefined, "JSON"]);
+      // The Avro record is called Order and the JSON Schema's title is PaymentEvent.
+      assert.deepEqual(
+        document.tables.map((table) => table.object),
+        ["orders", "payment-events"],
+      );
+      const orders = document.tables[0];
+      assert.equal(orders.columns.find((column) => column.name === "total").logicalType, "number");
+      assert.equal(orders.columns.find((column) => column.name === "note").required, false);
+      assert.equal(orders.columns.find((column) => column.name === "bill_to").sourceType, "Address");
+    });
+
+    it("schema-registry names a topic with a dot in full, and replaces only its own topic", () => {
+      const recipe = recipeOf("schema-registry");
+      const { text, files } = importResult("schema-registry");
+      const orders = files.find((it) => it.object === "orders");
+      const result = importSource({
+        connection: "events",
+        current: text,
+        file: "sources/events/orders.v2.json",
+        contents: orders.contents,
+        recipe,
+        at: "2026-11-13T10:00:00Z",
+      });
+      assert.ok("text" in result, JSON.stringify(result));
+      assert.deepEqual(
+        parse(result.text).tables.map((table) => table.object),
+        ["orders", "orders.v2", "payment-events"],
+      );
+    });
+
+    it("schema-registry refuses a Protobuf response and says what to do instead", () => {
+      const result = importSource({
+        connection: "events",
+        file: "sources/events/audit.json",
+        contents: JSON.stringify({
+          subject: "audit-value",
+          version: 1,
+          id: 9,
+          schemaType: "PROTOBUF",
+          schema: 'syntax = "proto3";',
+        }),
+        recipe: recipeOf("schema-registry"),
+        at: IMPORTED_AT,
+      });
+      assert.ok(!("text" in result));
+      assert.match(result.refused.join("\n"), /Protobuf schemas are not read yet/);
+    });
+
     it("sap-odata downloads the service's $metadata, with tables named after entity sets", () => {
       const recipe = recipeOf("sap-odata");
       assert.equal(recipe.kind, "document");
@@ -336,6 +526,9 @@ describe("check-recipes", () => {
       "salesforce",
       "dataverse",
       "sap-odata",
+      "odata",
+      "openapi",
+      "schema-registry",
       "sample",
     ])
       assert.match(result.output, new RegExp(`ok +recipes/${id}\\.yaml`));

@@ -1,0 +1,199 @@
+[
+  {
+    "object": "orders",
+    "columns": [
+      {
+        "name": "order_id",
+        "sourceType": "long",
+        "logicalType": "integer",
+        "required": true
+      },
+      {
+        "name": "customer_id",
+        "sourceType": "string",
+        "logicalType": "string",
+        "required": true
+      },
+      {
+        "name": "status",
+        "sourceType": "enum",
+        "logicalType": "string",
+        "required": true
+      },
+      {
+        "name": "total",
+        "sourceType": "decimal",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 12,
+          "scale": 2
+        },
+        "required": true
+      },
+      {
+        "name": "placed_at",
+        "sourceType": "timestamp-millis",
+        "logicalType": "timestamp",
+        "required": true
+      },
+      {
+        "name": "ship_date",
+        "sourceType": "date",
+        "logicalType": "date",
+        "required": false
+      },
+      {
+        "name": "note",
+        "sourceType": "string",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "currency",
+        "sourceType": "string",
+        "logicalType": "string",
+        "required": true
+      },
+      {
+        "name": "ship_to",
+        "sourceType": "record",
+        "logicalType": "object",
+        "required": true,
+        "properties": [
+          {
+            "name": "street",
+            "sourceType": "string",
+            "logicalType": "string",
+            "required": true
+          },
+          {
+            "name": "city",
+            "sourceType": "string",
+            "logicalType": "string",
+            "required": true
+          }
+        ]
+      },
+      {
+        "name": "bill_to",
+        "sourceType": "Address",
+        "logicalType": "object",
+        "required": false
+      },
+      {
+        "name": "lines",
+        "sourceType": "array",
+        "logicalType": "array",
+        "required": true,
+        "items": {
+          "name": "items",
+          "sourceType": "record",
+          "logicalType": "object",
+          "required": true,
+          "properties": [
+            {
+              "name": "sku",
+              "sourceType": "string",
+              "logicalType": "string",
+              "required": true
+            },
+            {
+              "name": "quantity",
+              "sourceType": "int",
+              "logicalType": "integer",
+              "required": true
+            }
+          ]
+        }
+      },
+      {
+        "name": "attributes",
+        "sourceType": "map",
+        "logicalType": "object",
+        "required": true
+      },
+      {
+        "name": "weight",
+        "sourceType": "double",
+        "logicalType": "number",
+        "required": true
+      }
+    ]
+  },
+  {
+    "object": "payment-events",
+    "columns": [
+      {
+        "name": "paymentId",
+        "sourceType": "string(uuid)",
+        "logicalType": "string",
+        "required": true
+      },
+      {
+        "name": "orderId",
+        "sourceType": "integer",
+        "logicalType": "integer",
+        "required": true
+      },
+      {
+        "name": "amount",
+        "sourceType": "number",
+        "logicalType": "number",
+        "required": true
+      },
+      {
+        "name": "method",
+        "sourceType": "string",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "paidAt",
+        "sourceType": "string(date-time)",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "refunded",
+        "sourceType": "boolean",
+        "logicalType": "boolean",
+        "required": false
+      },
+      {
+        "name": "payer",
+        "sourceType": "object",
+        "logicalType": "object",
+        "required": false,
+        "properties": [
+          {
+            "name": "name",
+            "sourceType": "string",
+            "logicalType": "string",
+            "required": true
+          },
+          {
+            "name": "email",
+            "sourceType": "string",
+            "logicalType": "string",
+            "logicalTypeOptions": {
+              "maxLength": 120
+            },
+            "required": false
+          }
+        ]
+      },
+      {
+        "name": "references",
+        "sourceType": "array",
+        "logicalType": "array",
+        "required": false,
+        "items": {
+          "name": "items",
+          "sourceType": "string",
+          "logicalType": "string",
+          "required": false
+        }
+      }
+    ]
+  }
+]
