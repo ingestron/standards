@@ -59,6 +59,11 @@ team runs the query and saves the result.
    unknown type. Use invented names only.
 7. Run the checks (below), then open a pull request.
 
+An input a team seldom needs to set can have a `default`, the text the request
+uses when the connection gives no value for it. It may hold `{object}`, which
+the request fills in with each table's name, as the schema registry recipe's
+`subject` does (`{object}-value`).
+
 For an application, such as Salesforce, give `ask` a `call` (a URL, with each
 value only a team knows as a placeholder such as `{instance}`) in place of a
 `run` query, and write `access` as the permission or role the call needs. Say
