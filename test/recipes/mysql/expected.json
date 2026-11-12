@@ -1,0 +1,336 @@
+[
+  {
+    "object": "shop.all_types",
+    "columns": [
+      {
+        "name": "c_tinyint",
+        "sourceType": "tinyint",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_smallint",
+        "sourceType": "smallint unsigned",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_mediumint",
+        "sourceType": "mediumint",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_int",
+        "sourceType": "int(11)",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_bigint",
+        "sourceType": "bigint unsigned",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_bit",
+        "sourceType": "bit(8)",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_bool",
+        "sourceType": "tinyint(1)",
+        "logicalType": "boolean",
+        "required": false
+      },
+      {
+        "name": "c_decimal",
+        "sourceType": "decimal(10,4)",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 10,
+          "scale": 4
+        },
+        "required": false
+      },
+      {
+        "name": "c_decimal_p",
+        "sourceType": "decimal(5)",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 5,
+          "scale": 0
+        },
+        "required": false
+      },
+      {
+        "name": "c_float",
+        "sourceType": "float",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "c_double",
+        "sourceType": "double",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "c_float_md",
+        "sourceType": "float(7,3)",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "c_date",
+        "sourceType": "date",
+        "logicalType": "date",
+        "required": false
+      },
+      {
+        "name": "c_datetime",
+        "sourceType": "datetime",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "c_timestamp",
+        "sourceType": "timestamp(3)",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "c_time",
+        "sourceType": "time(6)",
+        "logicalType": "time",
+        "required": false
+      },
+      {
+        "name": "c_year",
+        "sourceType": "year",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_char",
+        "sourceType": "char(8)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 8
+        },
+        "required": false
+      },
+      {
+        "name": "c_varchar",
+        "sourceType": "varchar(50)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 50
+        },
+        "required": false
+      },
+      {
+        "name": "c_tinytext",
+        "sourceType": "tinytext",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_text",
+        "sourceType": "text",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_mediumtext",
+        "sourceType": "mediumtext",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_longtext",
+        "sourceType": "longtext",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_binary",
+        "sourceType": "binary(16)",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_varbinary",
+        "sourceType": "varbinary(64)",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_tinyblob",
+        "sourceType": "tinyblob",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_blob",
+        "sourceType": "blob",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_mediumblob",
+        "sourceType": "mediumblob",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_longblob",
+        "sourceType": "longblob",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_enum",
+        "sourceType": "enum",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_set",
+        "sourceType": "set",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_json",
+        "sourceType": "json",
+        "logicalType": "object",
+        "required": false
+      },
+      {
+        "name": "c_geometry",
+        "sourceType": "geometry",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_point",
+        "sourceType": "point",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_polygon",
+        "sourceType": "polygon",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_geometrycollection",
+        "sourceType": "geometrycollection",
+        "logicalType": "string",
+        "required": false
+      }
+    ]
+  },
+  {
+    "object": "shop.custom_flags",
+    "columns": [
+      {
+        "name": "flag_id",
+        "sourceType": "bigint",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "label",
+        "sourceType": "char(10)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 10
+        },
+        "required": true
+      }
+    ]
+  },
+  {
+    "object": "shop.customers",
+    "columns": [
+      {
+        "name": "customer_id",
+        "sourceType": "int unsigned",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "name",
+        "sourceType": "varchar(200)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 200
+        },
+        "required": false
+      },
+      {
+        "name": "credit_limit",
+        "sourceType": "decimal(18,2)",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 18,
+          "scale": 2
+        },
+        "required": false
+      },
+      {
+        "name": "created_at",
+        "sourceType": "datetime(6)",
+        "logicalType": "timestamp",
+        "required": true
+      },
+      {
+        "name": "is_active",
+        "sourceType": "tinyint(1)",
+        "logicalType": "boolean",
+        "required": true
+      }
+    ]
+  },
+  {
+    "object": "shop.order_lines",
+    "columns": [
+      {
+        "name": "order_id",
+        "sourceType": "int",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "line_no",
+        "sourceType": "smallint",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 2
+      },
+      {
+        "name": "note",
+        "sourceType": "text",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "unit_price",
+        "sourceType": "decimal(12,4)",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 12,
+          "scale": 4
+        },
+        "required": true
+      }
+    ]
+  }
+]

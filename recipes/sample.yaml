@@ -1,0 +1,13 @@
+id: sample
+title: A sample of what the source sends
+kind: sample
+ask:
+  who: Someone who can export a small sample of the table from the source
+  access: Read access to the table's data. The sample is read to find the columns and their types, and its values are never kept.
+  save: sources/{connection}/{object}.csv
+  how: Export a few rows with a header row as CSV, or as JSON, JSON Lines or Parquet, and save the file under sources/{connection}/ with the table's name and the format's extension, such as {object}.json. A sample states no key, no length and no nullability, so Ingestron reads every column as optional.
+read: sample
+sources:
+  - { url: "https://www.rfc-editor.org/rfc/rfc4180", read: 2026-11-12 }
+  - { url: "https://jsonlines.org/", read: 2026-11-12 }
+  - { url: "https://parquet.apache.org/docs/file-format/", read: 2026-11-12 }

@@ -1,0 +1,42 @@
+[
+  {
+    "object": "orders",
+    "columns": [
+      {
+        "name": "id",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "customer",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "amount",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "placed_on",
+        "logicalType": "date",
+        "required": false
+      },
+      {
+        "name": "shipped_at",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "paid",
+        "logicalType": "boolean",
+        "required": false
+      },
+      {
+        "name": "note",
+        "logicalType": "string",
+        "required": false
+      }
+    ]
+  }
+]

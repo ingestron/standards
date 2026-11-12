@@ -1,9 +1,11 @@
 # Contributing
 
 This repository holds kits: small, complete Ingestron projects that someone
-has checked and dated. The format of a kit is in the Ingestron specification
-(`spec/cli/kits.md` in the `ingestron/ingestron` repository). This page says
-how to add one here.
+has checked and dated. It also holds recipes: how to get the metadata of one
+kind of source, such as the query a database team runs. The formats are in the
+Ingestron specification (`spec/cli/kits.md` and `spec/cli/sources.md` in the
+`ingestron/ingestron` repository). This page says how to add a kit or a recipe
+here.
 
 ## Add a kit
 
@@ -22,6 +24,40 @@ how to add one here.
    writes in backticks, as in `load`, `history`, `audit` or `operations`. The
    check looks for the name between backticks; the plain word does not count.
 6. Run the checks (below), then open a pull request.
+
+## Add a recipe
+
+A recipe is one file, `recipes/<id>.yaml`. It says what to ask a source's
+team for, how Ingestron reads the answer, how the source names a table and how
+its types map to logical types. Ingestron never connects to the source: the
+team runs the query and saves the result.
+
+1. Read the vendor's current documentation for the source's catalog (the
+   views or tables that describe its columns, keys and types) and for its data
+   types. Use the vendor's own pages only.
+2. Write `recipes/<id>.yaml`. The id is lower case and is the file's name.
+   Under `sources`, list each page you used with the date you read it,
+   `YYYY-MM-DD`.
+3. For a database, write a query that returns the eight fields of the columns
+   file, named as the specification names them and in its order, with
+   `data_type` as the source prints the type, length, precision and scale
+   included, such as `nvarchar(200)` or `decimal(18,2)`. Take the primary key
+   position from the catalog's constraint views, and narrow the query with
+   `WHERE <schema column> IN ({schemas})`. Save the result at
+   `sources/{connection}.catalog.csv`.
+4. Give `types` a rule for every type the vendor documents, so that no column
+   needs a guess. Capture precision, scale and length where the type gives them.
+5. Write `ask` for the people who will run the query: who they are, the exact
+   permission the query needs, and how to save the result as CSV with a header
+   row. Run no query against a real source: check the query by reading the
+   vendor's documentation.
+6. Add `test/recipes/<id>/result.csv`, a synthetic result exactly as the query
+   returns it, and `test/recipes/<id>/expected.json`, the tables Ingestron
+   should write from it. The result needs a table with a key of two columns, a
+   column that can be null, a decimal, a table in a second schema, and one
+   column of each type the query can return, so that the import reports no
+   unknown type. Use invented names only.
+7. Run the checks (below), then open a pull request.
 
 ## Run the checks
 
@@ -54,6 +90,18 @@ comes with `@ingestron/core`.
 
 Name kit folders to check only those:
 `npm run check -- kits/duckdb/local-medallion/2026-11-10`.
+
+`npm run check` also takes each file in `recipes/` and checks that:
+
+- the file follows the recipe format: its id is its file's name, its `ask` is
+  complete, each `match` is a regular expression and there is at least one
+  source;
+- no source was read after today;
+- the folder holds no file but `<id>.yaml` recipes.
+
+Name recipes to check only those: `npm run check -- recipes/oracle.yaml`.
+`npm test` imports each recipe's synthetic result with Ingestron's own import
+and compares the tables with `expected.json`.
 
 `npm run index` rewrites `index.json` from the folders and tags. Commit the
 result. The pull request check fails when `index.json` is out of date. After

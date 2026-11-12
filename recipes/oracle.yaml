@@ -1,0 +1,66 @@
+id: oracle
+title: Oracle Database
+kind: catalog
+ask:
+  who: Someone who can query the data dictionary of the Oracle database that holds the tables
+  access: The query reads the ALL_ views, which describe only the tables and views the account can access. Use an account that can access every table to be loaded, such as one with SELECT on each, so that none is left out.
+  run: |
+    SELECT NULL AS table_catalog,
+           c.owner AS table_schema,
+           c.table_name AS table_name,
+           c.column_name AS column_name,
+           ROW_NUMBER() OVER (PARTITION BY c.owner, c.table_name ORDER BY c.column_id) AS ordinal_position,
+           CASE
+             WHEN c.data_type IN ('CHAR', 'VARCHAR2', 'NCHAR', 'NVARCHAR2')
+               THEN c.data_type || '(' || c.char_length || ')'
+             WHEN c.data_type = 'NUMBER' AND c.data_precision IS NOT NULL
+               THEN 'NUMBER(' || c.data_precision || ',' || NVL(c.data_scale, 0) || ')'
+             WHEN c.data_type = 'NUMBER' AND c.data_scale IS NOT NULL
+               THEN 'NUMBER(*,' || c.data_scale || ')'
+             WHEN c.data_type = 'FLOAT' AND c.data_precision IS NOT NULL
+               THEN 'FLOAT(' || c.data_precision || ')'
+             WHEN c.data_type IN ('RAW', 'UROWID')
+               THEN c.data_type || '(' || c.data_length || ')'
+             ELSE c.data_type
+           END AS data_type,
+           CASE WHEN c.nullable = 'N' THEN 'NO' ELSE 'YES' END AS is_nullable,
+           k.position AS primary_key_position
+    FROM all_tab_columns c
+    LEFT JOIN (
+      SELECT cc.owner, cc.table_name, cc.column_name, cc.position
+      FROM all_constraints con
+      JOIN all_cons_columns cc ON cc.owner = con.owner AND cc.constraint_name = con.constraint_name
+      WHERE con.constraint_type = 'P'
+    ) k ON k.owner = c.owner AND k.table_name = c.table_name AND k.column_name = c.column_name
+    WHERE c.owner IN ({schemas})
+    ORDER BY c.owner, c.table_name, c.column_id
+  save: sources/{connection}.catalog.csv
+  how: Run the query in SQL Developer, SQLcl or another client and export the result as CSV with a header row. Schema names are upper case unless they were created in double quotes, so write them as the data dictionary shows them.
+read: columns
+names: { parts: 2, caseSensitive: false }
+types:
+  - { match: '^(n?varchar2|n?char)\((\d+)\)$', logicalType: string, options: { maxLength: $2 } }
+  - { match: '^(n?varchar2|n?char|long|clob|nclob)$', logicalType: string }
+  - { match: '^NUMBER\(\*,0\)$', logicalType: integer }
+  - { match: '^NUMBER\(\d+,0\)$', logicalType: integer }
+  - {
+      match: '^NUMBER\((\d+),(\d+)\)$',
+      logicalType: number,
+      options: { precision: $1, scale: $2 },
+    }
+  - { match: '^NUMBER\(\*,(\d+)\)$', logicalType: number, options: { scale: $1 } }
+  - { match: '^(NUMBER(\(.*\))?|FLOAT(\(\d+\))?|BINARY_FLOAT|BINARY_DOUBLE)$', logicalType: number }
+  - { match: '^DATE$', logicalType: timestamp }
+  - { match: '^TIMESTAMP(\(\d+\))?( WITH (LOCAL )?TIME ZONE)?$', logicalType: timestamp }
+  - { match: '^INTERVAL ', logicalType: string }
+  - { match: '^BOOLEAN$', logicalType: boolean }
+  - { match: '^JSON(\(.*\))?$', logicalType: object }
+  - { match: '^VECTOR(\(.*\))?$', logicalType: array }
+  - { match: '^(RAW(\(\d+\))?|LONG RAW|BLOB|BFILE)$', logicalType: string }
+  - { match: '^(ROWID|UROWID(\(\d+\))?)$', logicalType: string }
+  - { match: '^(XMLTYPE|URITYPE|ANYTYPE|ANYDATA|ANYDATASET|SDO_GEOMETRY|SDO_TOPO_GEOMETRY|SDO_GEORASTER)$', logicalType: string }
+sources:
+  - { url: "https://docs.oracle.com/en/database/oracle/oracle-database/26/refrn/ALL_TAB_COLUMNS.html", read: 2026-11-12 }
+  - { url: "https://docs.oracle.com/en/database/oracle/oracle-database/26/refrn/ALL_CONSTRAINTS.html", read: 2026-11-12 }
+  - { url: "https://docs.oracle.com/en/database/oracle/oracle-database/26/refrn/ALL_CONS_COLUMNS.html", read: 2026-11-12 }
+  - { url: "https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html", read: 2026-11-12 }

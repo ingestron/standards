@@ -1,0 +1,68 @@
+id: postgresql
+title: PostgreSQL
+kind: catalog
+inputs:
+  database: { description: "The database whose tables are loaded, such as erp" }
+ask:
+  who: Someone who can connect to the {database} database on the PostgreSQL server that holds the tables
+  access: An account that can connect to the {database} database and read PostgreSQL's system catalogs (pg_catalog). A catalog describes one database, so the query must run in the database that holds the tables.
+  run: |
+    SELECT current_database() AS table_catalog,
+           n.nspname AS table_schema,
+           c.relname AS table_name,
+           a.attname AS column_name,
+           row_number() OVER (PARTITION BY c.oid ORDER BY a.attnum) AS ordinal_position,
+           format_type(a.atttypid, a.atttypmod) AS data_type,
+           CASE WHEN a.attnotnull THEN 'NO' ELSE 'YES' END AS is_nullable,
+           k.position AS primary_key_position
+    FROM pg_catalog.pg_attribute AS a
+    JOIN pg_catalog.pg_class AS c ON c.oid = a.attrelid
+    JOIN pg_catalog.pg_namespace AS n ON n.oid = c.relnamespace
+    LEFT JOIN (
+      SELECT p.conrelid, u.attnum, u.position
+      FROM pg_catalog.pg_constraint AS p
+      CROSS JOIN LATERAL unnest(p.conkey) WITH ORDINALITY AS u(attnum, position)
+      WHERE p.contype = 'p'
+    ) AS k ON k.conrelid = c.oid AND k.attnum = a.attnum
+    WHERE a.attnum > 0
+      AND NOT a.attisdropped
+      AND c.relkind IN ('r', 'p', 'v', 'm', 'f')
+      AND NOT c.relispartition
+      AND n.nspname IN ({schemas})
+    ORDER BY n.nspname, c.relname, a.attnum;
+  save: sources/{connection}.catalog.csv
+  how: Run the query in psql, pgAdmin or another client and export the result as CSV with a header row.
+read: columns
+names: { parts: 3, caseSensitive: false }
+types:
+  - { match: '\[\]$', logicalType: array }
+  - { match: '^boolean$', logicalType: boolean }
+  - { match: '^(smallint|integer|bigint|oid)$', logicalType: integer }
+  - {
+      match: '^numeric\((\d+),(\d+)\)$',
+      logicalType: number,
+      options: { precision: $1, scale: $2 },
+    }
+  - { match: '^(numeric|real|double precision|money)$', logicalType: number }
+  - { match: '^date$', logicalType: date }
+  - { match: '^timestamp(\(\d+\))? (with|without) time zone$', logicalType: timestamp }
+  - { match: '^time(\(\d+\))? (with|without) time zone$', logicalType: time }
+  - { match: '^interval', logicalType: string }
+  - { match: '^(character varying|character)\((\d+)\)$', logicalType: string, options: { maxLength: $2 } }
+  - { match: '^(character varying|character|text|name|"char")$', logicalType: string }
+  - { match: '^bytea$', logicalType: string }
+  - { match: '^(json|jsonb)$', logicalType: object }
+  - { match: '^(uuid|xml)$', logicalType: string }
+  - { match: '^(bit|bit varying)(\(\d+\))?$', logicalType: string }
+  - { match: '^(inet|cidr|macaddr|macaddr8)$', logicalType: string }
+  - { match: '^(point|line|lseg|box|path|polygon|circle)$', logicalType: string }
+  - { match: '^(tsvector|tsquery|pg_lsn|pg_snapshot|txid_snapshot)$', logicalType: string }
+  - { match: '(range|multirange)$', logicalType: string }
+sources:
+  - { url: "https://www.postgresql.org/docs/current/catalog-pg-attribute.html", read: 2026-11-12 }
+  - { url: "https://www.postgresql.org/docs/current/catalog-pg-class.html", read: 2026-11-12 }
+  - { url: "https://www.postgresql.org/docs/current/catalog-pg-constraint.html", read: 2026-11-12 }
+  - { url: "https://www.postgresql.org/docs/current/functions-info.html", read: 2026-11-12 }
+  - { url: "https://www.postgresql.org/docs/current/queries-table-expressions.html", read: 2026-11-12 }
+  - { url: "https://www.postgresql.org/docs/current/datatype.html", read: 2026-11-12 }
+  - { url: "https://www.postgresql.org/docs/current/datatype-datetime.html", read: 2026-11-12 }

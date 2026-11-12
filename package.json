@@ -19,10 +19,11 @@
   },
   "files": [
     "kits",
+    "recipes",
     "index.json"
   ],
   "scripts": {
-    "check": "node scripts/check-kits.mjs",
+    "check": "node scripts/check.mjs",
     "index": "node scripts/index.mjs",
     "test": "node --test"
   },

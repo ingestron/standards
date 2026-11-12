@@ -1,0 +1,76 @@
+id: sqlserver
+title: SQL Server
+kind: catalog
+inputs:
+  database: { description: "The database whose tables are loaded, such as ERP" }
+ask:
+  who: Someone who can run queries in the {database} database on the SQL Server, Azure SQL Database or Azure SQL Managed Instance that holds the tables
+  access: SQL Server shows a login only the metadata of objects it owns or has some permission on, so the login needs VIEW DEFINITION on the {database} database. Without it, the result leaves tables out and says nothing.
+  run: |
+    SELECT DB_NAME() AS table_catalog,
+           s.name AS table_schema,
+           o.name AS table_name,
+           c.name AS column_name,
+           ROW_NUMBER() OVER (PARTITION BY c.object_id ORDER BY c.column_id) AS ordinal_position,
+           CASE
+             WHEN t.name IN ('char', 'varchar', 'binary', 'varbinary')
+               THEN t.name + '(' + CASE WHEN c.max_length = -1 THEN 'max' ELSE CAST(c.max_length AS varchar(10)) END + ')'
+             WHEN t.name IN ('nchar', 'nvarchar')
+               THEN t.name + '(' + CASE WHEN c.max_length = -1 THEN 'max' ELSE CAST(c.max_length / 2 AS varchar(10)) END + ')'
+             WHEN t.name IN ('decimal', 'numeric')
+               THEN t.name + '(' + CAST(c.precision AS varchar(10)) + ',' + CAST(c.scale AS varchar(10)) + ')'
+             WHEN t.name IN ('time', 'datetime2', 'datetimeoffset')
+               THEN t.name + '(' + CAST(c.scale AS varchar(10)) + ')'
+             ELSE t.name
+           END AS data_type,
+           CASE WHEN c.is_nullable = 1 THEN 'YES' ELSE 'NO' END AS is_nullable,
+           k.key_ordinal AS primary_key_position
+    FROM sys.columns AS c
+    JOIN sys.objects AS o ON o.object_id = c.object_id
+    JOIN sys.schemas AS s ON s.schema_id = o.schema_id
+    JOIN sys.types AS t ON t.user_type_id = c.user_type_id
+    LEFT JOIN (
+      SELECT ic.object_id, ic.column_id, ic.key_ordinal
+      FROM sys.indexes AS i
+      JOIN sys.index_columns AS ic ON ic.object_id = i.object_id AND ic.index_id = i.index_id
+      WHERE i.is_primary_key = 1 AND ic.key_ordinal > 0
+    ) AS k ON k.object_id = c.object_id AND k.column_id = c.column_id
+    WHERE o.type IN ('U', 'V') AND s.name IN ({schemas})
+    ORDER BY s.name, o.name, c.column_id;
+  save: sources/{connection}.catalog.csv
+  how: Connect to the {database} database, run the query and export the result as CSV with a header row, using the export of your SQL client.
+read: columns
+names: { parts: 3, caseSensitive: false }
+types:
+  - { match: '^bit$', logicalType: boolean }
+  - { match: '^(tinyint|smallint|int|bigint)$', logicalType: integer }
+  - {
+      match: '^(decimal|numeric)\((\d+),(\d+)\)$',
+      logicalType: number,
+      options: { precision: $2, scale: $3 },
+    }
+  - { match: '^(decimal|numeric|money|smallmoney|float|real)$', logicalType: number }
+  - { match: '^date$', logicalType: date }
+  - { match: '^(datetime|smalldatetime)$', logicalType: timestamp }
+  - { match: '^(datetime2|datetimeoffset)(\(\d+\))?$', logicalType: timestamp }
+  - { match: '^time(\(\d+\))?$', logicalType: time }
+  - { match: '^(n?char|n?varchar)\((\d+)\)$', logicalType: string, options: { maxLength: $2 } }
+  - { match: '^(n?char|n?varchar)(\(max\))?$', logicalType: string }
+  - { match: '^(text|ntext|sysname)$', logicalType: string }
+  - { match: '^(binary|varbinary)(\((\d+|max)\))?$', logicalType: string }
+  - { match: '^(image|rowversion|timestamp)$', logicalType: string }
+  - { match: '^(uniqueidentifier|xml|geography|geometry|hierarchyid|sql_variant)$', logicalType: string }
+  - { match: '^json$', logicalType: object }
+  - { match: '^vector(\(\d+\))?$', logicalType: array }
+sources:
+  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-columns-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-types-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-objects-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/schemas-catalog-views-sys-schemas?view=sql-server-ver17", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-indexes-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-index-columns-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/security/metadata-visibility-configuration?view=sql-server-ver17", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-information-schema-views/columns-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/sql/t-sql/data-types/rowversion-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17", read: 2026-11-12 }

@@ -1,0 +1,428 @@
+[
+  {
+    "object": "erp.custom.custom_flags",
+    "columns": [
+      {
+        "name": "flag_id",
+        "sourceType": "bigint",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "label",
+        "sourceType": "character(10)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 10
+        },
+        "required": true
+      }
+    ]
+  },
+  {
+    "object": "erp.public.all_types",
+    "columns": [
+      {
+        "name": "c_smallint",
+        "sourceType": "smallint",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_integer",
+        "sourceType": "integer",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_bigint",
+        "sourceType": "bigint",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_oid",
+        "sourceType": "oid",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_numeric",
+        "sourceType": "numeric",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "c_numeric_ps",
+        "sourceType": "numeric(10,0)",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 10,
+          "scale": 0
+        },
+        "required": false
+      },
+      {
+        "name": "c_real",
+        "sourceType": "real",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "c_double",
+        "sourceType": "double precision",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "c_money",
+        "sourceType": "money",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "c_boolean",
+        "sourceType": "boolean",
+        "logicalType": "boolean",
+        "required": false
+      },
+      {
+        "name": "c_date",
+        "sourceType": "date",
+        "logicalType": "date",
+        "required": false
+      },
+      {
+        "name": "c_time",
+        "sourceType": "time without time zone",
+        "logicalType": "time",
+        "required": false
+      },
+      {
+        "name": "c_time_p",
+        "sourceType": "time(3) without time zone",
+        "logicalType": "time",
+        "required": false
+      },
+      {
+        "name": "c_timetz",
+        "sourceType": "time with time zone",
+        "logicalType": "time",
+        "required": false
+      },
+      {
+        "name": "c_timestamp",
+        "sourceType": "timestamp without time zone",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "c_timestamptz",
+        "sourceType": "timestamp(6) with time zone",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "c_interval",
+        "sourceType": "interval",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_interval_p",
+        "sourceType": "interval(3)",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_interval_fields",
+        "sourceType": "interval year to month",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_char",
+        "sourceType": "character(8)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 8
+        },
+        "required": false
+      },
+      {
+        "name": "c_varchar",
+        "sourceType": "character varying(50)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 50
+        },
+        "required": false
+      },
+      {
+        "name": "c_varchar_plain",
+        "sourceType": "character varying",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_text",
+        "sourceType": "text",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_name",
+        "sourceType": "name",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_qchar",
+        "sourceType": "\"char\"",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_bytea",
+        "sourceType": "bytea",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_json",
+        "sourceType": "json",
+        "logicalType": "object",
+        "required": false
+      },
+      {
+        "name": "c_jsonb",
+        "sourceType": "jsonb",
+        "logicalType": "object",
+        "required": false
+      },
+      {
+        "name": "c_uuid",
+        "sourceType": "uuid",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_xml",
+        "sourceType": "xml",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_bit",
+        "sourceType": "bit(8)",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_varbit",
+        "sourceType": "bit varying(16)",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_inet",
+        "sourceType": "inet",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_cidr",
+        "sourceType": "cidr",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_macaddr",
+        "sourceType": "macaddr",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_macaddr8",
+        "sourceType": "macaddr8",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_point",
+        "sourceType": "point",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_line",
+        "sourceType": "line",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_lseg",
+        "sourceType": "lseg",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_box",
+        "sourceType": "box",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_path",
+        "sourceType": "path",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_polygon",
+        "sourceType": "polygon",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_circle",
+        "sourceType": "circle",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_tsvector",
+        "sourceType": "tsvector",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_tsquery",
+        "sourceType": "tsquery",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_pg_lsn",
+        "sourceType": "pg_lsn",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_pg_snapshot",
+        "sourceType": "pg_snapshot",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_txid_snapshot",
+        "sourceType": "txid_snapshot",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_int4range",
+        "sourceType": "int4range",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_tstzmultirange",
+        "sourceType": "tstzmultirange",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_int_array",
+        "sourceType": "integer[]",
+        "logicalType": "array",
+        "required": false
+      },
+      {
+        "name": "c_text_array",
+        "sourceType": "text[]",
+        "logicalType": "array",
+        "required": false
+      }
+    ]
+  },
+  {
+    "object": "erp.public.customers",
+    "columns": [
+      {
+        "name": "customer_id",
+        "sourceType": "integer",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "name",
+        "sourceType": "character varying(200)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 200
+        },
+        "required": false
+      },
+      {
+        "name": "credit_limit",
+        "sourceType": "numeric(18,2)",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 18,
+          "scale": 2
+        },
+        "required": false
+      },
+      {
+        "name": "created_at",
+        "sourceType": "timestamp(3) without time zone",
+        "logicalType": "timestamp",
+        "required": true
+      },
+      {
+        "name": "is_active",
+        "sourceType": "boolean",
+        "logicalType": "boolean",
+        "required": true
+      }
+    ]
+  },
+  {
+    "object": "erp.public.order_lines",
+    "columns": [
+      {
+        "name": "order_id",
+        "sourceType": "integer",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "line_no",
+        "sourceType": "smallint",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 2
+      },
+      {
+        "name": "note",
+        "sourceType": "text",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "unit_price",
+        "sourceType": "numeric(12,4)",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 12,
+          "scale": 4
+        },
+        "required": true
+      }
+    ]
+  }
+]
