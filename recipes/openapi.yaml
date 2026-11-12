@@ -9,7 +9,7 @@ ask:
   call: "{url}"
   save: sources/{connection}.openapi.json
   how: |
-    The response is the API's description, a JSON or YAML file. Ingestron reads the schemas in it, which are the shapes of the objects the API sends and receives. It reads no data. Save the description as the file above. If the API gives only a YAML file, ask for the JSON version at the same place, often called openapi.json, or save the YAML file with the name sources/{connection}.openapi.yaml, which Ingestron reads as well. A connection reads one API, so a project that reads several APIs has one connection, and one file, for each.
+    The response is the API's description, a JSON or YAML file. Ingestron reads the schemas in it, which are the shapes of the objects the API sends and receives. It reads no data. Save the description as the file above. If the API gives only a YAML file, ask for the JSON version at the same place, often called openapi.json. A connection reads one API, so a project that reads several APIs has one connection, and one file, for each.
 
     In a browser, open the URL and save the page as a JSON file. Some API documentation sites have a Download or Export button for the description, which does the same.
 

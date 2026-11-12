@@ -1,6 +1,6 @@
 id: dataverse
 title: Microsoft Dataverse (Dynamics 365)
-kind: document
+kind: catalog
 inputs:
   organisation: { description: "The URL of the Dataverse environment, such as https://yourorg.api.crm.dynamics.com" }
 ask:

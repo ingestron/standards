@@ -298,13 +298,35 @@ describe("the recipes", () => {
 
     it("dataverse downloads the Web API's $metadata, with tables named after entity types", () => {
       const recipe = recipeOf("dataverse");
-      assert.equal(recipe.kind, "document");
+      assert.equal(recipe.kind, "catalog");
       assert.equal(recipe.read, "odata");
       assert.equal(recipe.objects, "types");
       assert.equal(recipe.ask.call, "{organisation}/api/data/v9.2/$metadata");
       assert.equal(recipe.ask.save, "sources/{connection}.catalog.xml");
       assert.deepEqual(Object.keys(recipe.inputs), ["organisation"]);
     });
+
+    // Dataverse and SAP OData read the instance's own catalog: a table dropped there is removed.
+    for (const id of ["dataverse", "sap-odata"])
+      it(`${id} is a catalog recipe, so a table gone from the document is removed on import`, () => {
+        const { recipe, connection, files, text, document } = importResult(id);
+        const [first] = document.tables;
+        const pattern = id === "dataverse" ? `EntityType Name="${first.object}"` : `EntitySet Name="${first.object}"`;
+        assert.ok(files[0].contents.includes(pattern), pattern);
+        const again = importSource({
+          connection,
+          current: text,
+          file: files[0].file,
+          contents: files[0].contents.replace(pattern, pattern.replace(/"$/, '_renamed"')),
+          recipe,
+          at: "2026-11-13T10:00:00Z",
+        });
+        assert.ok("text" in again, JSON.stringify(again));
+        assert.deepEqual(
+          again.changes.filter((change) => change.change === "removed").map((change) => change.object),
+          [first.object],
+        );
+      });
 
     it("dataverse names a lookup column <name>, as the copy tools do, not _<name>_value", () => {
       const recipe = recipeOf("dataverse");
@@ -385,9 +407,10 @@ describe("the recipes", () => {
       assert.equal(recipe.read, "openapi");
     });
 
-    it("openapi reads the same description saved as YAML, as the how says it may be", () => {
+    // The how asks for the JSON file the request imports; a YAML description is read all the same.
+    it("openapi reads the same description saved as YAML, though the how asks for JSON", () => {
       const { recipe, files } = importResult("openapi");
-      assert.match(recipe.ask.how, /sources\/\{connection\}\.openapi\.yaml/);
+      assert.doesNotMatch(recipe.ask.how, /openapi\.yaml/);
       const result = importSource({
         connection: "shop",
         file: "sources/shop.openapi.yaml",
@@ -478,7 +501,7 @@ describe("the recipes", () => {
 
     it("sap-odata downloads the service's $metadata, with tables named after entity sets", () => {
       const recipe = recipeOf("sap-odata");
-      assert.equal(recipe.kind, "document");
+      assert.equal(recipe.kind, "catalog");
       assert.equal(recipe.read, "odata");
       assert.equal(recipe.objects, undefined);
       assert.equal(recipe.ask.call, "{service}/$metadata");

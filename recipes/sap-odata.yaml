@@ -1,6 +1,6 @@
 id: sap-odata
 title: SAP OData service
-kind: document
+kind: catalog
 inputs:
   service: { description: "The root URL of the OData service, such as https://sapgateway.example.com:44300/sap/opu/odata/sap/API_SALES_ORDER_SRV" }
 ask:

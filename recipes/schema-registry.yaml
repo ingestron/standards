@@ -5,7 +5,7 @@ inputs:
   registry: { description: "The URL of the schema registry, without a slash at the end, such as https://schemaregistry.example.com:8081" }
 ask:
   who: Someone who can read the schema registry that holds the topics' schemas, such as the Kafka platform team or the team that owns the topics
-  access: Permission to read the subjects of the topics the flows read. For Confluent Platform with role-based access control, the DeveloperRead role on each subject (Subject:<topic>-value) is enough. A registry secured with a user name and password, or on Confluent Cloud with an API key and secret, needs those credentials for every call. The response holds a schema, which is the topic's columns and types, and no messages.
+  access: Permission to read the subjects of the topics the flows read. For Confluent Platform with role-based access control, the DeveloperRead role on each topic's value subject, such as orders-value, is enough. A registry secured with a user name and password, or on Confluent Cloud with an API key and secret, needs those credentials for every call. The response holds a schema, which is the topic's columns and types, and no messages.
   call: "{registry}/subjects/{object}-value/versions/latest"
   save: sources/{connection}/{object}.json
   how: |
