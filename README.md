@@ -25,7 +25,8 @@ source names a table and how its types map to logical types. Recipes live in
 `postgresql`, `salesforce`, `dataverse`, `sap-odata` and `sample`. Each lists
 the vendor documentation it comes from, with the date it was read. Ingestron
 never connects to a source: someone with access runs the query or the call and
-saves the result under `sources/`.
+saves the result under `sources/`. A source with no recipe is covered by a
+sample of its data or by a columns file, which a person writes from the source.
 
 ## Start a project from a kit
 

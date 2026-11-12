@@ -22,9 +22,6 @@
         "name": "revenue",
         "sourceType": "Edm.Decimal",
         "logicalType": "number",
-        "logicalTypeOptions": {
-          "scale": 0
-        },
         "required": false
       },
       {
@@ -113,10 +110,6 @@
         "required": false
       }
     ]
-  },
-  {
-    "object": "crmbaseentity",
-    "columns": []
   },
   {
     "object": "new_project",
