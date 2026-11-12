@@ -1,0 +1,264 @@
+[
+  {
+    "object": "Address",
+    "columns": [
+      {
+        "name": "street",
+        "sourceType": "string",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 80
+        },
+        "required": false
+      },
+      {
+        "name": "city",
+        "sourceType": "string",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 40
+        },
+        "required": true
+      },
+      {
+        "name": "postcode",
+        "sourceType": "string",
+        "logicalType": "string",
+        "required": false
+      }
+    ]
+  },
+  {
+    "object": "Customer",
+    "columns": [
+      {
+        "name": "id",
+        "sourceType": "integer(int64)",
+        "logicalType": "integer",
+        "required": true
+      },
+      {
+        "name": "name",
+        "sourceType": "string",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 100
+        },
+        "required": true
+      },
+      {
+        "name": "segment",
+        "sourceType": "string",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "creditLimit",
+        "sourceType": "number(double)",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "joinedOn",
+        "sourceType": "string(date)",
+        "logicalType": "date",
+        "required": false
+      },
+      {
+        "name": "lastSeenAt",
+        "sourceType": "string(date-time)",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "isActive",
+        "sourceType": "boolean",
+        "logicalType": "boolean",
+        "required": false
+      },
+      {
+        "name": "homeAddress",
+        "sourceType": "object",
+        "logicalType": "object",
+        "required": false,
+        "properties": [
+          {
+            "name": "street",
+            "sourceType": "string",
+            "logicalType": "string",
+            "logicalTypeOptions": {
+              "maxLength": 80
+            },
+            "required": false
+          },
+          {
+            "name": "city",
+            "sourceType": "string",
+            "logicalType": "string",
+            "logicalTypeOptions": {
+              "maxLength": 40
+            },
+            "required": true
+          },
+          {
+            "name": "postcode",
+            "sourceType": "string",
+            "logicalType": "string",
+            "required": false
+          }
+        ]
+      },
+      {
+        "name": "tags",
+        "sourceType": "array",
+        "logicalType": "array",
+        "required": false,
+        "items": {
+          "name": "items",
+          "sourceType": "string",
+          "logicalType": "string",
+          "required": false
+        }
+      },
+      {
+        "name": "preferences",
+        "sourceType": "object",
+        "logicalType": "object",
+        "required": false,
+        "properties": [
+          {
+            "name": "language",
+            "sourceType": "string",
+            "logicalType": "string",
+            "required": true
+          },
+          {
+            "name": "marketing",
+            "sourceType": "boolean",
+            "logicalType": "boolean",
+            "required": false
+          }
+        ]
+      },
+      {
+        "name": "x_loyalty_code",
+        "sourceType": "string",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 12
+        },
+        "required": false
+      }
+    ]
+  },
+  {
+    "object": "Order",
+    "columns": [
+      {
+        "name": "orderId",
+        "sourceType": "string(uuid)",
+        "logicalType": "string",
+        "required": true
+      },
+      {
+        "name": "customerId",
+        "sourceType": "integer",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "placedAt",
+        "sourceType": "string(date-time)",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "total",
+        "sourceType": "number",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "shipTo",
+        "sourceType": "object",
+        "logicalType": "object",
+        "required": false,
+        "properties": [
+          {
+            "name": "street",
+            "sourceType": "string",
+            "logicalType": "string",
+            "logicalTypeOptions": {
+              "maxLength": 80
+            },
+            "required": false
+          },
+          {
+            "name": "city",
+            "sourceType": "string",
+            "logicalType": "string",
+            "logicalTypeOptions": {
+              "maxLength": 40
+            },
+            "required": true
+          },
+          {
+            "name": "postcode",
+            "sourceType": "string",
+            "logicalType": "string",
+            "required": false
+          }
+        ]
+      },
+      {
+        "name": "billTo",
+        "sourceType": "Address",
+        "logicalType": "object",
+        "required": false
+      },
+      {
+        "name": "lines",
+        "sourceType": "array",
+        "logicalType": "array",
+        "required": true,
+        "items": {
+          "name": "items",
+          "sourceType": "object",
+          "logicalType": "object",
+          "required": false,
+          "properties": [
+            {
+              "name": "sku",
+              "sourceType": "string",
+              "logicalType": "string",
+              "required": false
+            },
+            {
+              "name": "quantity",
+              "sourceType": "integer",
+              "logicalType": "integer",
+              "required": false
+            }
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "object": "OrderLine",
+    "columns": [
+      {
+        "name": "sku",
+        "sourceType": "string",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "quantity",
+        "sourceType": "integer",
+        "logicalType": "integer",
+        "required": false
+      }
+    ]
+  }
+]

@@ -1,0 +1,28 @@
+id: odata
+title: OData service
+kind: document
+inputs:
+  service: { description: "The root URL of the OData service, without a slash at the end, such as https://api.example.com/odata/v4/shop" }
+ask:
+  who: Someone who can call the OData service that holds the data, such as the service's owner or an administrator of the system behind it
+  access: A user the service lets in. The OData standard sets no permission of its own for the metadata document, so what is needed is whatever the service asks of any caller, and some services publish it to everyone. Use a user whose rights show every entity set and property the flows read, since a service may leave out what a user may not see.
+  call: "{service}/$metadata"
+  save: sources/{connection}.catalog.xml
+  how: |
+    The response is the service's metadata document, which is XML. It lists the service's entity sets, their properties, their types and their keys, and holds no data. Save it as the file above. A connection reads one service, so a project that reads several services has one connection, and one file, for each.
+
+    The service can also give the document as JSON, but Ingestron reads the XML, so ask for XML.
+
+    In a browser, sign in if the service asks, open the URL and save the page as an XML file.
+
+    With curl, replace USER with the user's name and run the command. curl asks for the password, so it is not typed into the command or saved. A service that wants a token in place of a password takes -H "Authorization: Bearer ACCESS_TOKEN" instead of --user USER, with ACCESS_TOKEN replaced by the token:
+
+        curl --create-dirs --user USER -H "Accept: application/xml" -o "sources/{connection}.catalog.xml" '{service}/$metadata'
+
+    With Postman, make a GET request to the URL with the authorisation the service needs and the header Accept: application/xml, send it and use Save Response to save it to a file. Do not send the password or token to anyone: Ingestron does not need it.
+read: odata
+names: { parts: 1, caseSensitive: true }
+sources:
+  - { url: "https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/odata-csdl-xml-v4.01.html", read: 2026-11-12 }
+  - { url: "https://docs.oasis-open.org/odata/odata/v4.01/os/part1-protocol/odata-v4.01-os-part1-protocol.html", read: 2026-11-12 }
+  - { url: "https://docs.oasis-open.org/odata/odata/v4.01/odata-v4.01-part2-url-conventions.html", read: 2026-11-12 }

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Shop" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <ComplexType Name="Address">
+        <Property Name="Street" Type="Edm.String" MaxLength="80" />
+        <Property Name="City" Type="Edm.String" Nullable="false" MaxLength="40" />
+        <Property Name="PostCode" Type="Edm.String" MaxLength="10" />
+      </ComplexType>
+      <EntityType Name="Customer">
+        <Key>
+          <PropertyRef Name="CustomerId" />
+        </Key>
+        <Property Name="CustomerId" Type="Edm.Int32" Nullable="false" />
+        <Property Name="Name" Type="Edm.String" Nullable="false" MaxLength="100">
+          <Annotation Term="Org.OData.Core.V1.Description" String="ZZ-DOC Customer name" />
+        </Property>
+        <Property Name="Segment" Type="Edm.String" DefaultValue="ZZ-DEFAULT-SEGMENT" />
+        <Property Name="CreditLimit" Type="Edm.Decimal" Precision="12" Scale="2" />
+        <Property Name="JoinedOn" Type="Edm.Date" />
+        <Property Name="IsActive" Type="Edm.Boolean" />
+        <Property Name="HomeAddress" Type="Shop.Address" />
+        <Property Name="Tags" Type="Collection(Edm.String)" Nullable="false" />
+        <Property Name="Custom_Loyalty_Code" Type="Edm.String" MaxLength="12" />
+        <NavigationProperty Name="Orders" Type="Collection(Shop.Order)" Partner="Customer" />
+      </EntityType>
+      <EntityType Name="Order">
+        <Key>
+          <PropertyRef Name="OrderId" />
+        </Key>
+        <Property Name="OrderId" Type="Edm.Guid" Nullable="false" />
+        <Property Name="CustomerId" Type="Edm.Int32" Nullable="false" />
+        <Property Name="PlacedAt" Type="Edm.DateTimeOffset" Precision="3" />
+        <Property Name="CutOff" Type="Edm.TimeOfDay" />
+        <Property Name="Total" Type="Edm.Decimal" Precision="14" Scale="variable" />
+        <Property Name="Weight" Type="Edm.Double" />
+        <Property Name="Lines" Type="Collection(Edm.Int64)" Nullable="false" />
+        <Property Name="ShipTo" Type="Shop.Address" />
+        <Property Name="BillTo" Type="Shop.Address" />
+        <NavigationProperty Name="Customer" Type="Shop.Customer" Partner="Orders" />
+      </EntityType>
+      <EntityContainer Name="Container">
+        <EntitySet Name="Customers" EntityType="Shop.Customer" />
+        <EntitySet Name="Orders" EntityType="Shop.Order" />
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

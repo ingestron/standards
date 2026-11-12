@@ -1,0 +1,182 @@
+[
+  {
+    "object": "OrderItems",
+    "columns": [
+      {
+        "name": "OrderID",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 10
+        },
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "ItemNo",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 6
+        },
+        "required": true,
+        "primaryKeyPosition": 2
+      },
+      {
+        "name": "Material",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 40
+        },
+        "required": false
+      },
+      {
+        "name": "Quantity",
+        "sourceType": "Edm.Decimal",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 13,
+          "scale": 3
+        },
+        "required": true
+      },
+      {
+        "name": "Unit",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 3
+        },
+        "required": false
+      },
+      {
+        "name": "ZZ_CustomRemark",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "required": false
+      }
+    ]
+  },
+  {
+    "object": "Orders",
+    "columns": [
+      {
+        "name": "OrderID",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 10
+        },
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "CreatedOn",
+        "sourceType": "Edm.DateTime",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "NetAmount",
+        "sourceType": "Edm.Decimal",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 15,
+          "scale": 2
+        },
+        "required": false
+      },
+      {
+        "name": "Currency",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 5
+        },
+        "required": false
+      },
+      {
+        "name": "DeliveryTime",
+        "sourceType": "Edm.Time",
+        "logicalType": "time",
+        "required": false
+      },
+      {
+        "name": "ChangedAt",
+        "sourceType": "Edm.DateTimeOffset",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "Quantity",
+        "sourceType": "Edm.Double",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "Weight",
+        "sourceType": "Edm.Single",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "ItemCount",
+        "sourceType": "Edm.Int16",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "Priority",
+        "sourceType": "Edm.Byte",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "Offset",
+        "sourceType": "Edm.SByte",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "TotalLines",
+        "sourceType": "Edm.Int32",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "Revision",
+        "sourceType": "Edm.Int64",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "IsBlocked",
+        "sourceType": "Edm.Boolean",
+        "logicalType": "boolean",
+        "required": false
+      },
+      {
+        "name": "DocumentUUID",
+        "sourceType": "Edm.Guid",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "Attachment",
+        "sourceType": "Edm.Binary",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "YY1_Region_ORD",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 20
+        },
+        "required": false
+      }
+    ]
+  }
+]

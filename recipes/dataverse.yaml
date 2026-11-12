@@ -1,0 +1,32 @@
+id: dataverse
+title: Microsoft Dataverse (Dynamics 365)
+kind: catalog
+inputs:
+  organisation: { description: "The URL of the Dataverse environment, such as https://yourorg.api.crm.dynamics.com" }
+ask:
+  who: Someone who can sign in to the Dataverse environment that holds the tables, such as a Dynamics 365 administrator
+  access: A valid user account for the environment, which every Web API call needs. Microsoft's pages name no other privilege for the $metadata document. A System Administrator or System Customizer security role is the surest way to see every table, custom tables included.
+  call: "{organisation}/api/data/v9.2/$metadata"
+  save: sources/{connection}.catalog.xml
+  how: |
+    The response is one XML document that describes every table of the environment, standard and custom, so it is large. Save it as the file above. Do not add ?annotations=true: the plain document has all Ingestron needs.
+
+    In a browser, sign in to the environment, open the URL and save the page as an XML file.
+
+    With curl, replace ACCESS_TOKEN with an access token for the environment and run:
+
+        curl --create-dirs -H "Authorization: Bearer ACCESS_TOKEN" -H "Accept: application/xml" -H "OData-MaxVersion: 4.0" -H "OData-Version: 4.0" -o "sources/{connection}.catalog.xml" '{organisation}/api/data/v9.2/$metadata'
+
+    With Postman, make a GET request to the URL with the same Accept and OData headers and a Bearer token, send it and use Save Response to save it to a file. Do not send the token to anyone: Ingestron does not need it.
+read: odata
+objects: types
+# $metadata names a lookup column _<name>_value (the Web API properties page, "Lookup properties").
+# Azure Data Factory and Fabric copy it as <name>, which is the name the flows read.
+columnNames: { match: '^_(.+)_value$', to: '$1' }
+names: { parts: 1, caseSensitive: true }
+sources:
+  - { url: "https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/web-api-service-documents", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/web-api-properties", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/power-apps/developer/data-platform/webapi/use-ps-and-vscode-web-api", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/power-apps/maker/data-platform/types-of-fields", read: 2026-11-12 }
+  - { url: "https://docs.oasis-open.org/odata/odata-csdl-xml/v4.01/odata-csdl-xml-v4.01.html", read: 2026-11-12 }

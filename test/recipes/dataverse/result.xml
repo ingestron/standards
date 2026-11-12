@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:DataServices>
+    <Schema Namespace="Microsoft.Dynamics.CRM" Alias="mscrm" xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="crmbaseentity" Abstract="true" OpenType="true" />
+      <EntityType Name="account" BaseType="mscrm.crmbaseentity">
+        <Key>
+          <PropertyRef Name="accountid" />
+        </Key>
+        <Property Name="accountid" Type="Edm.Guid" Nullable="false">
+          <Annotation Term="Org.OData.Core.V1.Description" String="ZZ-DESCRIPTION-42 Unique identifier of the account." />
+        </Property>
+        <Property Name="name" Type="Edm.String" MaxLength="160" Unicode="false" />
+        <Property Name="revenue" Type="Edm.Decimal" Scale="Variable" />
+        <Property Name="numberofemployees" Type="Edm.Int32" />
+        <Property Name="creditonhold" Type="Edm.Boolean" />
+        <Property Name="lastusedincampaign" Type="Edm.DateTimeOffset" />
+        <Property Name="createdon" Type="Edm.DateTimeOffset" />
+        <Property Name="_primarycontactid_value" Type="Edm.Guid" />
+        <Property Name="versionnumber" Type="Edm.Int64" />
+        <Property Name="new_tier" Type="Edm.Int32">
+          <Annotation Term="Org.OData.Core.V1.Description" String="ZZ-OPTION-LABEL-42 Gold" />
+        </Property>
+        <NavigationProperty Name="primarycontactid" Type="mscrm.contact" Nullable="true" />
+      </EntityType>
+      <EntityType Name="contact" BaseType="mscrm.crmbaseentity">
+        <Key>
+          <PropertyRef Name="contactid" />
+        </Key>
+        <Property Name="contactid" Type="Edm.Guid" Nullable="false" />
+        <Property Name="fullname" Type="Edm.String" MaxLength="160" />
+        <Property Name="birthdate" Type="Edm.Date" />
+        <Property Name="annualincome" Type="Edm.Decimal" Precision="19" Scale="4" />
+        <Property Name="entityimage" Type="Edm.Binary" />
+      </EntityType>
+      <EntityType Name="new_project" BaseType="mscrm.crmbaseentity">
+        <Key>
+          <PropertyRef Name="new_projectid" />
+        </Key>
+        <Property Name="new_projectid" Type="Edm.Guid" Nullable="false" />
+        <Property Name="new_name" Type="Edm.String" MaxLength="100" />
+        <Property Name="new_budget" Type="Edm.Decimal" Precision="19" Scale="2" />
+        <Property Name="new_hoursestimate" Type="Edm.Double" />
+        <Property Name="new_startdate" Type="Edm.Date" />
+        <Property Name="new_status" Type="Edm.Int32">
+          <Annotation Term="Org.OData.Core.V1.Description" String="ZZ-CHOICE-LABEL-42 In progress" />
+        </Property>
+        <Property Name="new_notes" Type="Edm.String" MaxLength="1048576" />
+        <Property Name="new_isbillable" Type="Edm.Boolean" />
+        <Property Name="statecode" Type="Edm.Int32" Nullable="false" />
+        <Property Name="statuscode" Type="Edm.Int32" />
+        <Property Name="_new_accountid_value" Type="Edm.Guid" />
+        <Property Name="timezoneruleversionnumber" Type="Edm.Int16" />
+        <NavigationProperty Name="new_accountid" Type="mscrm.account" Nullable="true" />
+      </EntityType>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

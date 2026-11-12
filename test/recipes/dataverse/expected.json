@@ -1,0 +1,202 @@
+[
+  {
+    "object": "account",
+    "columns": [
+      {
+        "name": "accountid",
+        "sourceType": "Edm.Guid",
+        "logicalType": "string",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "name",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 160
+        },
+        "required": false
+      },
+      {
+        "name": "revenue",
+        "sourceType": "Edm.Decimal",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "numberofemployees",
+        "sourceType": "Edm.Int32",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "creditonhold",
+        "sourceType": "Edm.Boolean",
+        "logicalType": "boolean",
+        "required": false
+      },
+      {
+        "name": "lastusedincampaign",
+        "sourceType": "Edm.DateTimeOffset",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "createdon",
+        "sourceType": "Edm.DateTimeOffset",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "primarycontactid",
+        "sourceType": "Edm.Guid",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "versionnumber",
+        "sourceType": "Edm.Int64",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "new_tier",
+        "sourceType": "Edm.Int32",
+        "logicalType": "integer",
+        "required": false
+      }
+    ]
+  },
+  {
+    "object": "contact",
+    "columns": [
+      {
+        "name": "contactid",
+        "sourceType": "Edm.Guid",
+        "logicalType": "string",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "fullname",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 160
+        },
+        "required": false
+      },
+      {
+        "name": "birthdate",
+        "sourceType": "Edm.Date",
+        "logicalType": "date",
+        "required": false
+      },
+      {
+        "name": "annualincome",
+        "sourceType": "Edm.Decimal",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 19,
+          "scale": 4
+        },
+        "required": false
+      },
+      {
+        "name": "entityimage",
+        "sourceType": "Edm.Binary",
+        "logicalType": "string",
+        "required": false
+      }
+    ]
+  },
+  {
+    "object": "new_project",
+    "columns": [
+      {
+        "name": "new_projectid",
+        "sourceType": "Edm.Guid",
+        "logicalType": "string",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "new_name",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 100
+        },
+        "required": false
+      },
+      {
+        "name": "new_budget",
+        "sourceType": "Edm.Decimal",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 19,
+          "scale": 2
+        },
+        "required": false
+      },
+      {
+        "name": "new_hoursestimate",
+        "sourceType": "Edm.Double",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "new_startdate",
+        "sourceType": "Edm.Date",
+        "logicalType": "date",
+        "required": false
+      },
+      {
+        "name": "new_status",
+        "sourceType": "Edm.Int32",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "new_notes",
+        "sourceType": "Edm.String",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 1048576
+        },
+        "required": false
+      },
+      {
+        "name": "new_isbillable",
+        "sourceType": "Edm.Boolean",
+        "logicalType": "boolean",
+        "required": false
+      },
+      {
+        "name": "statecode",
+        "sourceType": "Edm.Int32",
+        "logicalType": "integer",
+        "required": true
+      },
+      {
+        "name": "statuscode",
+        "sourceType": "Edm.Int32",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "new_accountid",
+        "sourceType": "Edm.Guid",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "timezoneruleversionnumber",
+        "sourceType": "Edm.Int16",
+        "logicalType": "integer",
+        "required": false
+      }
+    ]
+  }
+]

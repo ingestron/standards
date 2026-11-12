@@ -1,0 +1,328 @@
+[
+  {
+    "object": "HR.DEPARTMENTS",
+    "columns": [
+      {
+        "name": "DEPARTMENT_ID",
+        "sourceType": "NUMBER(4,0)",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "DEPARTMENT_NAME",
+        "sourceType": "VARCHAR2(30)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 30
+        },
+        "required": true
+      },
+      {
+        "name": "MANAGER_ID",
+        "sourceType": "NUMBER(6,0)",
+        "logicalType": "integer",
+        "required": false
+      }
+    ]
+  },
+  {
+    "object": "SALES.ALL_TYPES",
+    "columns": [
+      {
+        "name": "C_VARCHAR2",
+        "sourceType": "VARCHAR2(50)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 50
+        },
+        "required": false
+      },
+      {
+        "name": "C_NVARCHAR2",
+        "sourceType": "NVARCHAR2(60)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 60
+        },
+        "required": false
+      },
+      {
+        "name": "C_CHAR",
+        "sourceType": "CHAR(8)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 8
+        },
+        "required": false
+      },
+      {
+        "name": "C_NCHAR",
+        "sourceType": "NCHAR(3)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 3
+        },
+        "required": false
+      },
+      {
+        "name": "C_CLOB",
+        "sourceType": "CLOB",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "C_NCLOB",
+        "sourceType": "NCLOB",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "C_LONG",
+        "sourceType": "LONG",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "C_NUMBER",
+        "sourceType": "NUMBER",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "C_NUMBER_SCALE",
+        "sourceType": "NUMBER(*,3)",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "scale": 3
+        },
+        "required": false
+      },
+      {
+        "name": "C_NUMBER_ROUND",
+        "sourceType": "NUMBER(10,-2)",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "C_FLOAT",
+        "sourceType": "FLOAT(126)",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "C_BINARY_FLOAT",
+        "sourceType": "BINARY_FLOAT",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "C_BINARY_DOUBLE",
+        "sourceType": "BINARY_DOUBLE",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "C_DATE",
+        "sourceType": "DATE",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "C_TIMESTAMP",
+        "sourceType": "TIMESTAMP(6)",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "C_TIMESTAMP_TZ",
+        "sourceType": "TIMESTAMP(6) WITH TIME ZONE",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "C_TIMESTAMP_LTZ",
+        "sourceType": "TIMESTAMP(9) WITH LOCAL TIME ZONE",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "C_INTERVAL_YM",
+        "sourceType": "INTERVAL YEAR(2) TO MONTH",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "C_INTERVAL_DS",
+        "sourceType": "INTERVAL DAY(2) TO SECOND(6)",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "C_RAW",
+        "sourceType": "RAW(16)",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "C_LONG_RAW",
+        "sourceType": "LONG RAW",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "C_BLOB",
+        "sourceType": "BLOB",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "C_BFILE",
+        "sourceType": "BFILE",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "C_ROWID",
+        "sourceType": "ROWID",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "C_UROWID",
+        "sourceType": "UROWID(4000)",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "C_XML",
+        "sourceType": "XMLTYPE",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "C_GEOMETRY",
+        "sourceType": "SDO_GEOMETRY",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "C_BOOLEAN",
+        "sourceType": "BOOLEAN",
+        "logicalType": "boolean",
+        "required": false
+      },
+      {
+        "name": "C_JSON",
+        "sourceType": "JSON",
+        "logicalType": "object",
+        "required": false
+      },
+      {
+        "name": "C_VECTOR",
+        "sourceType": "VECTOR",
+        "logicalType": "array",
+        "required": false
+      }
+    ]
+  },
+  {
+    "object": "SALES.CUSTOMERS",
+    "columns": [
+      {
+        "name": "CUSTOMER_ID",
+        "sourceType": "NUMBER(10,0)",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "NAME",
+        "sourceType": "VARCHAR2(200)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 200
+        },
+        "required": false
+      },
+      {
+        "name": "CREDIT_LIMIT",
+        "sourceType": "NUMBER(18,2)",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 18,
+          "scale": 2
+        },
+        "required": false
+      },
+      {
+        "name": "CREATED_AT",
+        "sourceType": "TIMESTAMP(6)",
+        "logicalType": "timestamp",
+        "required": true
+      },
+      {
+        "name": "BALANCE",
+        "sourceType": "NUMBER",
+        "logicalType": "number",
+        "required": false
+      }
+    ]
+  },
+  {
+    "object": "SALES.CUSTOM_FLAGS",
+    "columns": [
+      {
+        "name": "FLAG_ID",
+        "sourceType": "NUMBER(*,0)",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "LABEL",
+        "sourceType": "CHAR(10)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 10
+        },
+        "required": true
+      }
+    ]
+  },
+  {
+    "object": "SALES.ORDER_LINES",
+    "columns": [
+      {
+        "name": "ORDER_ID",
+        "sourceType": "NUMBER(10,0)",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "LINE_NO",
+        "sourceType": "NUMBER(5,0)",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 2
+      },
+      {
+        "name": "NOTE",
+        "sourceType": "CLOB",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "UNIT_PRICE",
+        "sourceType": "NUMBER(12,4)",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 12,
+          "scale": 4
+        },
+        "required": true
+      }
+    ]
+  }
+]

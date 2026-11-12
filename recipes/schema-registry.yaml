@@ -1,0 +1,29 @@
+id: schema-registry
+title: Kafka topics, through a schema registry
+kind: catalog
+inputs:
+  registry: { description: "The URL of the schema registry, without a slash at the end, such as https://schemaregistry.example.com:8081" }
+ask:
+  who: Someone who can read the schema registry that holds the topics' schemas, such as the Kafka platform team or the team that owns the topics
+  access: Permission to read the subjects of the topics the flows read. For Confluent Platform with role-based access control, the DeveloperRead role on each topic's value subject, such as orders-value, is enough. A registry secured with a user name and password, or on Confluent Cloud with an API key and secret, needs those credentials for every call. The response holds a schema, which is the topic's columns and types, and no messages.
+  call: "{registry}/subjects/{object}-value/versions/latest"
+  save: sources/{connection}/{object}.json
+  how: |
+    Call it once for each topic. The call takes the name of the topic's value subject, which is the topic's name with -value after it when the topic uses the default naming (TopicNameStrategy), so {object} is the topic's name. A topic whose subject is named some other way takes that subject's name, with the file still named after the topic. The response is the latest version of the schema: its subject, its version and the schema as text. Save it as the file above. Ingestron reads Avro and JSON Schema. It does not yet read a Protobuf schema, so give the columns of that topic as a columns file instead.
+
+    With curl, replace USER with the user's name, or the API key for Confluent Cloud, and run the command. curl asks for the password, or the API secret, so it is not typed into the command or saved:
+
+        curl --create-dirs --user USER -o "sources/{connection}/{object}.json" "{registry}/subjects/{object}-value/versions/latest"
+
+    A registry with no sign-in takes the command without --user USER.
+
+    With Postman, make a GET request to the URL with basic authentication if the registry needs it, send it and use Save Response to save it to a file. In a browser, open the URL, sign in if asked, and save the page as a JSON file. Do not send the password or secret to anyone: Ingestron does not need it.
+read: avro
+names: { parts: 1, caseSensitive: true }
+sources:
+  - { url: "https://docs.confluent.io/platform/current/schema-registry/develop/api.html", read: 2026-11-12 }
+  - { url: "https://docs.confluent.io/platform/current/schema-registry/fundamentals/serdes-develop/index.html", read: 2026-11-12 }
+  - { url: "https://docs.confluent.io/platform/current/schema-registry/security/index.html", read: 2026-11-12 }
+  - { url: "https://docs.confluent.io/platform/current/schema-registry/security/rbac-schema-registry.html", read: 2026-11-12 }
+  - { url: "https://docs.confluent.io/cloud/current/sr/schemas-manage.html", read: 2026-11-12 }
+  - { url: "https://avro.apache.org/docs/1.12.0/specification/", read: 2026-11-12 }

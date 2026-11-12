@@ -5,9 +5,9 @@ It holds a Standard, a Platform skeleton, a `project.yaml`, and one connection,
 flow, contract and transform that build. You start a project from a kit, and
 later move to a newer kit when you want a newer Standard.
 
-This repository holds Ingestron's own kits. The same folders are published to
-npm as `@ingestron/standards`, so `ingestron init --kit` works offline for
-them.
+This repository holds Ingestron's own kits and source recipes. The same
+folders are published to npm as `@ingestron/standards`, so `ingestron init --kit`
+works offline for the kits.
 
 ## Find a kit
 
@@ -15,6 +15,19 @@ Kits live in `kits/<platform>/<name>/<version>/`, for example
 `kits/duckdb/local-medallion/2026-11-10/`. Each kit's `README.md` says what the
 kit does, why each choice was made and what you must fill in.
 [`index.json`](index.json) lists every kit and version.
+
+## Find a recipe
+
+A recipe says how to get the metadata of one kind of source: the query its
+team runs or the API call it makes, how Ingestron reads the result, how the
+source names a table and how its types map to logical types. Recipes live in
+`recipes/<id>.yaml`. The first ones are `sqlserver`, `oracle`, `mysql`,
+`postgresql`, `salesforce`, `dataverse`, `sap-odata`, `odata`, `openapi`,
+`schema-registry` and `sample`. Each lists
+the vendor documentation it comes from, with the date it was read. Ingestron
+never connects to a source: someone with access runs the query or the call and
+saves the result under `sources/`. A source with no recipe is covered by a
+sample of its data or by a columns file, which a person writes from the source.
 
 ## Start a project from a kit
 
@@ -59,10 +72,10 @@ checked against the packs.
   features that are generally available.
 - Several versions of a kit can be current at the same time.
 
-## Propose a kit
+## Propose a kit or a recipe
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md). It says what a kit must hold and how
-to check it before you open a pull request.
+Read [CONTRIBUTING.md](CONTRIBUTING.md). It says what a kit or a recipe must
+hold and how to check it before you open a pull request.
 
 ## Licence
 

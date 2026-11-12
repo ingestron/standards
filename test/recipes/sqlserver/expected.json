@@ -1,0 +1,344 @@
+[
+  {
+    "object": "ERP.custom.CustomFlags",
+    "columns": [
+      {
+        "name": "FlagID",
+        "sourceType": "bigint",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "Label",
+        "sourceType": "nchar(10)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 10
+        },
+        "required": true
+      }
+    ]
+  },
+  {
+    "object": "ERP.dbo.AllTypes",
+    "columns": [
+      {
+        "name": "c_tinyint",
+        "sourceType": "tinyint",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_smallint",
+        "sourceType": "smallint",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_int",
+        "sourceType": "int",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_bigint",
+        "sourceType": "bigint",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_bit",
+        "sourceType": "bit",
+        "logicalType": "boolean",
+        "required": false
+      },
+      {
+        "name": "c_decimal",
+        "sourceType": "decimal(10,4)",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 10,
+          "scale": 4
+        },
+        "required": false
+      },
+      {
+        "name": "c_numeric",
+        "sourceType": "numeric(5,0)",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 5,
+          "scale": 0
+        },
+        "required": false
+      },
+      {
+        "name": "c_money",
+        "sourceType": "money",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "c_smallmoney",
+        "sourceType": "smallmoney",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "c_float",
+        "sourceType": "float",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "c_real",
+        "sourceType": "real",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "c_date",
+        "sourceType": "date",
+        "logicalType": "date",
+        "required": false
+      },
+      {
+        "name": "c_time",
+        "sourceType": "time(7)",
+        "logicalType": "time",
+        "required": false
+      },
+      {
+        "name": "c_datetime2",
+        "sourceType": "datetime2(7)",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "c_datetimeoffset",
+        "sourceType": "datetimeoffset(3)",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "c_datetime",
+        "sourceType": "datetime",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "c_smalldatetime",
+        "sourceType": "smalldatetime",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "c_char",
+        "sourceType": "char(8)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 8
+        },
+        "required": false
+      },
+      {
+        "name": "c_varchar",
+        "sourceType": "varchar(50)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 50
+        },
+        "required": false
+      },
+      {
+        "name": "c_text",
+        "sourceType": "text",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_nchar",
+        "sourceType": "nchar(3)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 3
+        },
+        "required": false
+      },
+      {
+        "name": "c_nvarchar",
+        "sourceType": "nvarchar(100)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 100
+        },
+        "required": false
+      },
+      {
+        "name": "c_nvarchar_max",
+        "sourceType": "nvarchar(max)",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_ntext",
+        "sourceType": "ntext",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_binary",
+        "sourceType": "binary(16)",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_varbinary",
+        "sourceType": "varbinary(max)",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_image",
+        "sourceType": "image",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_rowversion",
+        "sourceType": "timestamp",
+        "logicalType": "string",
+        "required": true
+      },
+      {
+        "name": "c_guid",
+        "sourceType": "uniqueidentifier",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_xml",
+        "sourceType": "xml",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_geography",
+        "sourceType": "geography",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_geometry",
+        "sourceType": "geometry",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_hierarchyid",
+        "sourceType": "hierarchyid",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_variant",
+        "sourceType": "sql_variant",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "c_json",
+        "sourceType": "json",
+        "logicalType": "object",
+        "required": false
+      },
+      {
+        "name": "c_vector",
+        "sourceType": "vector",
+        "logicalType": "array",
+        "required": false
+      },
+      {
+        "name": "c_sysname",
+        "sourceType": "sysname",
+        "logicalType": "string",
+        "required": true
+      }
+    ]
+  },
+  {
+    "object": "ERP.dbo.Customers",
+    "columns": [
+      {
+        "name": "CustomerID",
+        "sourceType": "int",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "Name",
+        "sourceType": "nvarchar(200)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 200
+        },
+        "required": false
+      },
+      {
+        "name": "CreditLimit",
+        "sourceType": "decimal(18,2)",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 18,
+          "scale": 2
+        },
+        "required": false
+      },
+      {
+        "name": "CreatedAt",
+        "sourceType": "datetime2(3)",
+        "logicalType": "timestamp",
+        "required": true
+      },
+      {
+        "name": "IsActive",
+        "sourceType": "bit",
+        "logicalType": "boolean",
+        "required": true
+      }
+    ]
+  },
+  {
+    "object": "ERP.dbo.OrderLines",
+    "columns": [
+      {
+        "name": "OrderID",
+        "sourceType": "int",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 1
+      },
+      {
+        "name": "LineNo",
+        "sourceType": "smallint",
+        "logicalType": "integer",
+        "required": true,
+        "primaryKeyPosition": 2
+      },
+      {
+        "name": "Note",
+        "sourceType": "varchar(max)",
+        "logicalType": "string",
+        "required": false
+      },
+      {
+        "name": "UnitPrice",
+        "sourceType": "money",
+        "logicalType": "number",
+        "required": true
+      }
+    ]
+  }
+]
