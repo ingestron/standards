@@ -29,8 +29,8 @@
     "test": "node --test"
   },
   "devDependencies": {
-    "@ingestron/cli": "^2.3.0",
-    "@ingestron/core": "^1.1.0",
+    "@ingestron/cli": "^2.4.0",
+    "@ingestron/core": "^1.2.0",
     "ajv": "8.20.0",
     "yaml": "2.9.1"
   },
