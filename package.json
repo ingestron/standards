@@ -20,7 +20,8 @@
   "files": [
     "kits",
     "recipes",
-    "index.json"
+    "index.json",
+    "NOTICE"
   ],
   "scripts": {
     "check": "node scripts/check.mjs",
