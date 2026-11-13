@@ -35,7 +35,7 @@ ask:
     WHERE c.owner IN ({schemas})
     ORDER BY c.owner, c.table_name, c.column_id
   save: sources/{connection}.catalog.csv
-  how: Run the query in SQL Developer, SQLcl or another client and export the result as CSV with a header row. Schema names are upper case unless they were created in double quotes, so write them as the data dictionary shows them.
+  how: Run the query in SQL Developer, SQLcl or another client and export the result as CSV with a header row. In SQLcl, run SET SQLFORMAT csv, then SPOOL <file>.csv, the query and SPOOL OFF, and check that the file starts with the header row. The query has no closing semicolon, so in SQLcl or SQL*Plus put a / on a line by itself after it to run it. Schema names are upper case unless they were created in double quotes, so write them as the data dictionary shows them.
 read: columns
 names: { parts: 2, caseSensitive: false }
 types:
@@ -64,3 +64,6 @@ sources:
   - { url: "https://docs.oracle.com/en/database/oracle/oracle-database/26/refrn/ALL_CONSTRAINTS.html", read: 2026-11-12 }
   - { url: "https://docs.oracle.com/en/database/oracle/oracle-database/26/refrn/ALL_CONS_COLUMNS.html", read: 2026-11-12 }
   - { url: "https://docs.oracle.com/en/database/oracle/oracle-database/26/sqlrf/Data-Types.html", read: 2026-11-12 }
+  - { url: "https://docs.oracle.com/en/database/oracle/sql-developer-command-line/26.3/sqcug/formatting-query-results.html", read: 2026-11-13 }
+  - { url: "https://docs.oracle.com/en/database/oracle/sql-developer-command-line/26.3/sqcug/entering-executing-commands.html", read: 2026-11-13 }
+  - { url: "https://docs.oracle.com/en/database/oracle/oracle-database/26/sqpug/SQL-Plus-basics.html", read: 2026-11-13 }

@@ -36,8 +36,25 @@ team runs the query and saves the result.
    views or tables that describe its columns, keys and types) and for its data
    types. Use the vendor's own pages only.
 2. Write `recipes/<id>.yaml`. The id is lower case and is the file's name.
-   Under `sources`, list each page you used with the date you read it,
-   `YYYY-MM-DD`.
+   Every recipe has these fields:
+   - `id` and `title`;
+   - `kind`: `catalog` for a query or call on the source's own catalog,
+     `document` for a call that downloads a document the source publishes, or
+     `sample` for a file of what the source sends;
+   - `inputs` (optional): each value only a team knows, with a `description`
+     and, if it seldom needs setting, a `default`. Write it in `ask` as
+     `{name}`;
+   - `ask`: `who`, `access`, `run` (a query) or `call` (a URL), `save`, and
+     optionally `how`;
+   - `read`: the reader of the result, such as `columns`, `odata` or `openapi`;
+   - `names` (optional): how many parts the source's table names have, and
+     whether they are case sensitive;
+   - `types`: the rules that map the source's types to logical types;
+   - `sources`: each vendor page you used, with the date you read it,
+     `YYYY-MM-DD`.
+
+   `spec/cli/sources.md` in the `ingestron/ingestron` repository has every
+   field, and the check says which rule a recipe breaks.
 3. For a database, write a query that returns the eight fields of the columns
    file, named as the specification names them and in its order, with
    `data_type` as the source prints the type, length, precision and scale
@@ -64,6 +81,16 @@ uses when the connection gives no value for it. It may hold `{object}`, which
 the request fills in with each table's name, as the schema registry recipe's
 `subject` does (`{object}-value`).
 
+When `run` or `call` holds `{object}`, the request is made once for each table,
+so `save` must hold `{object}` too, directly or through an input whose
+`default` holds it. Otherwise every table is saved to one file, and the check
+says so: `save must hold {object} when run or call does`.
+
+Take every query, call and type rule from the vendor's current documentation,
+and list the page and the date you read it under `sources`. That includes the
+client hint in `how`: name a setting or option only when a vendor page
+documents it. Do not copy a query from a forum, a blog or memory.
+
 For an application, such as Salesforce, give `ask` a `call` (a URL, with each
 value only a team knows as a placeholder such as `{instance}`) in place of a
 `run` query, and write `access` as the permission or role the call needs. Say
@@ -77,7 +104,10 @@ written. A call made once for each object has one result file for each object in
 
 ## Run the checks
 
-Use Node 22 or later.
+Use Node 22 or later. To check a recipe you have written, run
+`npm run check -- recipes/<id>.yaml`, which runs the recipe check
+(`scripts/check-recipes.mjs`), and then `npm test`, which imports the recipe's
+synthetic result and compares the tables with `expected.json`.
 
 ```sh
 npm ci

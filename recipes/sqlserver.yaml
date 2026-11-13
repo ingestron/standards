@@ -40,7 +40,7 @@ ask:
     WHERE o.type IN ('U', 'V') AND o.is_ms_shipped = 0 AND s.name IN ({schemas})
     ORDER BY s.name, o.name, c.column_id;
   save: sources/{connection}.catalog.csv
-  how: Connect to the {database} database, run the query and export the result as CSV with a header row, using the export of your SQL client. A type such as decimal(18,2) holds a comma, so the export must put such a value in double quotes, or separate the fields with tabs. The output sqlcmd prints is not CSV.
+  how: Connect to the {database} database, run the query and export the result as CSV with a header row, using the export of your SQL client. A type such as decimal(18,2) holds a comma, so the export must put such a value in double quotes, or separate the fields with tabs. The output sqlcmd prints is not CSV. In PowerShell, Invoke-Sqlcmd -ServerInstance <server> -Database {database} -Query <the query> | Select-Object table_catalog, table_schema, table_name, column_name, ordinal_position, data_type, is_nullable, primary_key_position | Export-Csv -Path <file> writes a header row and puts every value in double quotes; Select-Object keeps the file to the eight fields.
 read: columns
 names: { parts: 3, caseSensitive: false }
 types:
@@ -77,3 +77,5 @@ sources:
   - { url: "https://learn.microsoft.com/en-us/sql/t-sql/data-types/rowversion-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
   - { url: "https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
   - { url: "https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver17", read: 2026-11-13 }
+  - { url: "https://learn.microsoft.com/en-us/powershell/module/sqlserver/invoke-sqlcmd?view=sqlserver-ps", read: 2026-11-13 }
+  - { url: "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/export-csv?view=powershell-7.5", read: 2026-11-13 }
