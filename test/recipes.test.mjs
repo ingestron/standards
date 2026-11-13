@@ -16,11 +16,13 @@ import {
   rmSync,
   writeFileSync,
 } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, describe, it } from "node:test";
 import { fileURLToPath } from "node:url";
 import { importSource, readSourceRecipe } from "@ingestron/core";
+import { cliPath } from "../scripts/check-kits.mjs";
 import { allRecipeFiles, recipeProblems, today } from "../scripts/check-recipes.mjs";
 import { runScript } from "./fixture-repo.mjs";
 import { devDependency } from "./dev-dependency.mjs";
@@ -62,6 +64,28 @@ const CUSTOM = {
   dataverse: { object: "new_project", column: "new_budget" },
   "sap-odata": { object: "OrderItems", column: "ZZ_CustomRemark" },
 };
+
+/** The texts of the descriptive keys of a JSON result, or the descriptive attributes of an XML one. */
+function descriptiveTexts(contents) {
+  const keys = new Set(["label", "inlineHelpText", "defaultValueFormula", "calculatedFormula", "description", "value"]);
+  if (!contents.trimStart().startsWith("<")) {
+    const found = [];
+    const names = new Set();
+    const walk = (node, key) => {
+      if (typeof node === "string" && key === "name") names.add(node);
+      if (typeof node === "string" && keys.has(key)) found.push(node);
+      else if (Array.isArray(node)) for (const item of node) walk(item, key);
+      else if (node && typeof node === "object")
+        for (const [name, child] of Object.entries(node)) walk(child, name);
+    };
+    walk(JSON.parse(contents), "");
+    // A label that is the same text as a name, such as an object's, is written as the name.
+    return found.filter((text) => text.length >= 3 && !names.has(text));
+  }
+  const attributes = /\b(?:String|Value|(?:sap:)?label|(?:sap:)?quickinfo)="([^"]{3,})"/g;
+  const names = new Set([...contents.matchAll(/\bName="([^"]*)"/g)].map((match) => match[1]));
+  return [...contents.matchAll(attributes)].map((match) => match[1]).filter((text) => !names.has(text));
+}
 
 const recipeFile = (id) => join(repo, "recipes", `${id}.yaml`);
 const caseFile = (id, name) => join(repo, "test", "recipes", id, name);
@@ -210,6 +234,25 @@ describe("the recipes", () => {
         for (const { contents } of files) assert.match(contents, /ZZ-[A-Z]/);
         assert.doesNotMatch(text, /ZZ-[A-Z]/);
       });
+
+      // The marker is one way to see a leak. Every text the result holds under a key or an
+      // attribute that carries a label, help, default or picklist value is also looked for.
+      it("holds none of the result's descriptive texts, marked or not", () => {
+        const { files, text } = importResult(id);
+        const texts = files.flatMap(({ contents }) => descriptiveTexts(contents));
+        assert.ok(texts.length >= 3, `the result holds descriptive texts: ${texts.length}`);
+        // No written value is one of them, and no phrase of several words is in the text at all.
+        const written = new Set();
+        const walk = (node) => {
+          if (typeof node === "string") written.add(node);
+          else if (node && typeof node === "object") Object.values(node).forEach(walk);
+        };
+        walk(parse(text));
+        for (const found of texts) {
+          assert.ok(!written.has(found), `"${found}" is not a written value`);
+          if (/\s/.test(found)) assert.ok(!text.includes(found), `"${found}" is not written`);
+        }
+      });
     });
   }
 
@@ -249,6 +292,72 @@ describe("the recipes", () => {
         const { files, text } = importResult(id);
         for (const { contents } of files) assert.match(contents, /ZZ-[A-Z]/);
         assert.doesNotMatch(text, /ZZ-[A-Z]/);
+      });
+  });
+
+  // The files the command writes are checked as well as the text it prints: the whole project
+  // folder, which holds the results themselves, is searched for none of the result's marked text
+  // but in the result files. Needs a CLI with `source import`: INGESTRON_CLI, or the installed one.
+  describe("the files the CLI writes", () => {
+    const cli = (() => {
+      try {
+        const path = cliPath();
+        const help = spawnSync("node", [path, "--help"], { encoding: "utf8" });
+        return /\bsource import\b/.test(help.stdout) ? path : undefined;
+      } catch {
+        return undefined;
+      }
+    })();
+
+    afterEach(() => {
+      for (const folder of madeFolders.splice(0)) rmSync(folder, { recursive: true, force: true });
+    });
+
+    for (const id of [...APPLICATIONS, ...SERVICES, "sample"])
+      it(`${id}: the printed text, sources/<connection>.yaml and project.yaml hold no marked text`, {
+        skip: cli === undefined && "the CLI has no source import (set INGESTRON_CLI)",
+      }, () => {
+        const { connection, files } = importResult(id);
+        const project = mkdtempSync(join(tmpdir(), "recipes-cli-"));
+        madeFolders.push(project);
+        mkdirSync(join(project, "connections"));
+        mkdirSync(join(project, "recipes"));
+        writeFileSync(join(project, "project.yaml"), "id: demo\nimports:\n  - connections/*.yaml\n");
+        writeFileSync(
+          join(project, "connections", `${connection}.yaml`),
+          `apiVersion: ingestron.io/v1\nkind: Connection\nid: ${connection}\nconnector: salesforce\nconnectivity: public\nsettings:\n  uc_connection: ${connection}_connection\nmetadata: { from: ${id} }\n`,
+        );
+        cpSync(recipeFile(id), join(project, "recipes", `${id}.yaml`));
+        let printed = "";
+        for (const { file, contents } of files) {
+          mkdirSync(dirname(join(project, file)), { recursive: true });
+          writeFileSync(join(project, file), contents);
+          const result = spawnSync("node", [cli, "source", "import", connection, file], {
+            cwd: project,
+            encoding: "utf8",
+          });
+          assert.equal(result.status, 0, result.stdout + result.stderr);
+          printed += result.stdout + result.stderr;
+        }
+        const written = [`sources/${connection}.yaml`, "project.yaml"].map((name) =>
+          readFileSync(join(project, name), "utf8"),
+        );
+        // Every file of the project but the results themselves, which hold the marked text.
+        const results = new Set(files.map(({ file }) => join(project, file)));
+        const others = (folder) =>
+          readdirSync(folder, { withFileTypes: true }).flatMap((entry) => {
+            const path = join(folder, entry.name);
+            if (entry.isDirectory()) return others(path);
+            return results.has(path) ? [] : [readFileSync(path, "utf8")];
+          });
+        const everything = others(project);
+        assert.ok(everything.length >= 4, "the project's own files are searched");
+        for (const text of [printed, ...written, ...everything])
+          assert.doesNotMatch(text, /ZZ-[A-Z]|Fabrikam/);
+        assert.ok(written[0].includes("tables:"));
+        assert.ok(written[1].includes(`sources/${connection}.yaml`));
+        const leftovers = readdirSync(join(project, "sources")).filter((name) => name.endsWith(".tmp"));
+        assert.deepEqual(leftovers, []);
       });
   });
 
@@ -440,9 +549,12 @@ describe("the recipes", () => {
       const recipe = recipeOf("schema-registry");
       assert.equal(recipe.kind, "catalog");
       assert.equal(recipe.read, "avro");
-      assert.equal(recipe.ask.call, "{registry}/subjects/{object}-value/versions/latest");
+      assert.equal(recipe.ask.call, "{registry}/subjects/{subject}/versions/latest");
       assert.equal(recipe.ask.save, "sources/{connection}/{object}.json");
-      assert.deepEqual(Object.keys(recipe.inputs), ["registry"]);
+      assert.deepEqual(Object.keys(recipe.inputs), ["registry", "subject"]);
+      // The subject is optional: it is the topic's name and -value unless the connection says so.
+      assert.equal(recipe.inputs.subject.default, "{object}-value");
+      assert.equal(recipe.inputs.registry.default, undefined);
       assert.deepEqual(recipe.names, { parts: 1, caseSensitive: true });
       assert.match(recipe.ask.access, /DeveloperRead/);
     });
@@ -518,6 +630,11 @@ describe("the recipes", () => {
       assert.equal(recipe.ask.save, "sources/{connection}/{object}.csv");
       assert.equal(recipe.ask.run, undefined);
       assert.equal(recipe.ask.call, undefined);
+    });
+
+    it("gives an example file name, not a placeholder, so the request has nothing to fill in", () => {
+      assert.doesNotMatch(recipeOf("sample").ask.how, /\{object\}/);
+      assert.match(recipeOf("sample").ask.how, /such as orders\.json\./);
     });
   });
 });
