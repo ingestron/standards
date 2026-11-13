@@ -43,13 +43,16 @@ team runs the query and saves the result.
      `sample` for a file of what the source sends;
    - `inputs` (optional): each value only a team knows, with a `description`
      and, if it seldom needs setting, a `default`. Write it in `ask` as
-     `{name}`;
+     `{name}`. An input's name starts with a lower-case letter and holds
+     letters, digits and `_` (`^[a-z][a-zA-Z0-9_]*$`), and is not `connection`,
+     `object` or `schemas`, which the request fills in itself;
    - `ask`: `who`, `access`, `run` (a query) or `call` (a URL), `save`, and
-     optionally `how`;
+     optionally `how`. A `sample` recipe has neither `run` nor `call`. `save`
+     starts `sources/`;
    - `read`: the reader of the result, such as `columns`, `odata` or `openapi`;
    - `names` (optional): how many parts the source's table names have, and
      whether they are case sensitive;
-   - `types`: the rules that map the source's types to logical types;
+   - `types` (optional): the rules that map the source's types to logical types;
    - `sources`: each vendor page you used, with the date you read it,
      `YYYY-MM-DD`.
 
@@ -106,8 +109,8 @@ written. A call made once for each object has one result file for each object in
 
 Use Node 22 or later. To check a recipe you have written, run
 `npm run check -- recipes/<id>.yaml`, which runs the recipe check
-(`scripts/check-recipes.mjs`), and then `npm test`, which imports the recipe's
-synthetic result and compares the tables with `expected.json`.
+(`scripts/check-recipes.mjs`), and then `npm test`, which imports each
+recipe's synthetic result and compares the tables with `expected.json`.
 
 ```sh
 npm ci
