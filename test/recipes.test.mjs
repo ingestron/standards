@@ -280,8 +280,37 @@ describe("the recipes", () => {
         assert.ok(recipe.names.parts >= 2);
         assert.equal(typeof recipe.names.caseSensitive, "boolean");
       });
+
+      // sqlcmd, the mysql client and psql (with \pset null) can print a null as the text NULL,
+      // which the columns reader refuses, so a column outside the key is given as empty text.
+      // In Oracle, empty text is null, and its clients' CSV export writes a null as empty.
+      if (id !== "oracle")
+        it("gives an empty primary_key_position, not a null, for a column outside the key", () => {
+          assert.match(
+            recipe.ask.run,
+            /\b(?:ISNULL|COALESCE)\((?:CAST\()?k\.\w+(?: AS (?:varchar\(10\)|CHAR)\)|::text), ''\) AS primary_key_position\b/,
+          );
+        });
     });
   }
+
+  // A user-defined type is printed as the type it is based on, so that its logical type and
+  // length are read, rather than its own name, which no rule knows.
+  describe("user-defined types", () => {
+    it("sqlserver reads an alias type as its base system type", () => {
+      const { run } = recipeOf("sqlserver").ask;
+      assert.match(run, /JOIN sys\.types AS ut ON ut\.user_type_id = c\.user_type_id/);
+      assert.match(
+        run,
+        /CASE WHEN ut\.is_user_defined = 1 AND ut\.is_assembly_type = 0\s+THEN ut\.system_type_id ELSE ut\.user_type_id END/,
+      );
+    });
+
+    it("postgresql reads a domain as its base type", () => {
+      const { run } = recipeOf("postgresql").ask;
+      assert.match(run, /CASE WHEN t\.typtype = 'd'\s+THEN format_type\(t\.typbasetype, t\.typtypmod\)/);
+    });
+  });
 
   describe("the services' results", () => {
     // Each result holds a documentation text, a default, an example or an enum value that carries

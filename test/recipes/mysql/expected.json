@@ -264,6 +264,52 @@
         "sourceType": "vector(2048)",
         "logicalType": "array",
         "required": false
+      },
+      {
+        "name": "c_tinyint_zerofill",
+        "sourceType": "tinyint(4) unsigned zerofill",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_decimal_unsigned",
+        "sourceType": "decimal(8,2) unsigned",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 8,
+          "scale": 2
+        },
+        "required": false
+      },
+      {
+        "name": "c_real",
+        "sourceType": "double",
+        "logicalType": "number",
+        "required": false
+      },
+      {
+        "name": "c_bit1",
+        "sourceType": "bit(1)",
+        "logicalType": "integer",
+        "required": false
+      },
+      {
+        "name": "c_vector3",
+        "sourceType": "vector(3)",
+        "logicalType": "array",
+        "required": false
+      },
+      {
+        "name": "c_datetime_p",
+        "sourceType": "datetime(3)",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "c_long_varchar",
+        "sourceType": "mediumtext",
+        "logicalType": "string",
+        "required": false
       }
     ]
   },

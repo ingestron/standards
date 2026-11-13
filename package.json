@@ -1,6 +1,6 @@
 {
   "name": "@ingestron/standards",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Ingestron's dated standards (kits): small projects to start from, each checked against the packs.",
   "license": "Apache-2.0",
   "repository": {
@@ -20,7 +20,8 @@
   "files": [
     "kits",
     "recipes",
-    "index.json"
+    "index.json",
+    "NOTICE"
   ],
   "scripts": {
     "check": "node scripts/check.mjs",

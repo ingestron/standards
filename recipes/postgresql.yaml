@@ -12,12 +12,16 @@ ask:
            c.relname AS table_name,
            a.attname AS column_name,
            row_number() OVER (PARTITION BY c.oid ORDER BY a.attnum) AS ordinal_position,
-           format_type(a.atttypid, a.atttypmod) AS data_type,
+           CASE WHEN t.typtype = 'd'
+             THEN format_type(t.typbasetype, t.typtypmod)
+             ELSE format_type(a.atttypid, a.atttypmod)
+           END AS data_type,
            CASE WHEN a.attnotnull THEN 'NO' ELSE 'YES' END AS is_nullable,
-           k.position AS primary_key_position
+           COALESCE(k.position::text, '') AS primary_key_position
     FROM pg_catalog.pg_attribute AS a
     JOIN pg_catalog.pg_class AS c ON c.oid = a.attrelid
     JOIN pg_catalog.pg_namespace AS n ON n.oid = c.relnamespace
+    JOIN pg_catalog.pg_type AS t ON t.oid = a.atttypid
     LEFT JOIN (
       SELECT p.conrelid, u.attnum, u.position
       FROM pg_catalog.pg_constraint AS p
@@ -31,7 +35,7 @@ ask:
       AND n.nspname IN ({schemas})
     ORDER BY n.nspname, c.relname, a.attnum;
   save: sources/{connection}.catalog.csv
-  how: Run the query in psql, pgAdmin or another client and export the result as CSV with a header row.
+  how: Run the query in psql, pgAdmin or another client and export the result as CSV with a header row, such as with psql's --csv option.
 read: columns
 names: { parts: 3, caseSensitive: false }
 types:
@@ -61,8 +65,10 @@ types:
 sources:
   - { url: "https://www.postgresql.org/docs/current/catalog-pg-attribute.html", read: 2026-11-12 }
   - { url: "https://www.postgresql.org/docs/current/catalog-pg-class.html", read: 2026-11-12 }
+  - { url: "https://www.postgresql.org/docs/current/catalog-pg-type.html", read: 2026-11-13 }
   - { url: "https://www.postgresql.org/docs/current/catalog-pg-constraint.html", read: 2026-11-12 }
   - { url: "https://www.postgresql.org/docs/current/functions-info.html", read: 2026-11-12 }
   - { url: "https://www.postgresql.org/docs/current/queries-table-expressions.html", read: 2026-11-12 }
   - { url: "https://www.postgresql.org/docs/current/datatype.html", read: 2026-11-12 }
   - { url: "https://www.postgresql.org/docs/current/datatype-datetime.html", read: 2026-11-12 }
+  - { url: "https://www.postgresql.org/docs/current/app-psql.html", read: 2026-11-13 }
