@@ -24,11 +24,13 @@ ask:
              ELSE t.name
            END AS data_type,
            CASE WHEN c.is_nullable = 1 THEN 'YES' ELSE 'NO' END AS is_nullable,
-           k.key_ordinal AS primary_key_position
+           ISNULL(CAST(k.key_ordinal AS varchar(10)), '') AS primary_key_position
     FROM sys.columns AS c
     JOIN sys.objects AS o ON o.object_id = c.object_id
     JOIN sys.schemas AS s ON s.schema_id = o.schema_id
-    JOIN sys.types AS t ON t.user_type_id = c.user_type_id
+    JOIN sys.types AS ut ON ut.user_type_id = c.user_type_id
+    JOIN sys.types AS t ON t.user_type_id = CASE WHEN ut.is_user_defined = 1 AND ut.is_assembly_type = 0
+                                             THEN ut.system_type_id ELSE ut.user_type_id END
     LEFT JOIN (
       SELECT ic.object_id, ic.column_id, ic.key_ordinal
       FROM sys.indexes AS i
@@ -38,7 +40,7 @@ ask:
     WHERE o.type IN ('U', 'V') AND o.is_ms_shipped = 0 AND s.name IN ({schemas})
     ORDER BY s.name, o.name, c.column_id;
   save: sources/{connection}.catalog.csv
-  how: Connect to the {database} database, run the query and export the result as CSV with a header row, using the export of your SQL client.
+  how: Connect to the {database} database, run the query and export the result as CSV with a header row, using the export of your SQL client. A type such as decimal(18,2) holds a comma, so the export must put such a value in double quotes, or separate the fields with tabs. The output sqlcmd prints is not CSV.
 read: columns
 names: { parts: 3, caseSensitive: false }
 types:
@@ -64,7 +66,7 @@ types:
   - { match: '^vector(\(\d+\))?$', logicalType: array }
 sources:
   - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-columns-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
-  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-types-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-types-transact-sql?view=sql-server-ver17", read: 2026-11-13 }
   - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-objects-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
   - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/schemas-catalog-views-sys-schemas?view=sql-server-ver17", read: 2026-11-12 }
   - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-indexes-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
@@ -74,3 +76,4 @@ sources:
   - { url: "https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
   - { url: "https://learn.microsoft.com/en-us/sql/t-sql/data-types/rowversion-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
   - { url: "https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
+  - { url: "https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver17", read: 2026-11-13 }

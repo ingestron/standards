@@ -12,7 +12,7 @@ ask:
            c.ORDINAL_POSITION AS ordinal_position,
            CASE WHEN c.DATA_TYPE IN ('enum', 'set') THEN c.DATA_TYPE ELSE c.COLUMN_TYPE END AS data_type,
            c.IS_NULLABLE AS is_nullable,
-           k.ORDINAL_POSITION AS primary_key_position
+           COALESCE(CAST(k.ORDINAL_POSITION AS CHAR), '') AS primary_key_position
     FROM information_schema.COLUMNS AS c
     LEFT JOIN (
       SELECT u.TABLE_SCHEMA, u.TABLE_NAME, u.COLUMN_NAME, u.ORDINAL_POSITION
@@ -28,7 +28,7 @@ ask:
     WHERE c.TABLE_SCHEMA IN ({schemas})
     ORDER BY c.TABLE_SCHEMA, c.TABLE_NAME, c.ORDINAL_POSITION;
   save: sources/{connection}.catalog.csv
-  how: Run the query in the mysql client, MySQL Workbench or another client and export the result as CSV with a header row. In MySQL, a schema is a database, so write the names of the databases that hold the tables.
+  how: Run the query in the mysql client, MySQL Workbench or another client and export the result as CSV with a header row. The mysql client's --batch output, tab-separated with a header row, can be saved as it is. In MySQL, a schema is a database, so write the names of the databases that hold the tables.
 read: columns
 names: { parts: 2, caseSensitive: false }
 types:
@@ -58,6 +58,7 @@ sources:
   - { url: "https://dev.mysql.com/doc/refman/8.4/en/information-schema-key-column-usage-table.html", read: 2026-11-12 }
   - { url: "https://dev.mysql.com/doc/refman/8.4/en/information-schema-table-constraints-table.html", read: 2026-11-12 }
   - { url: "https://dev.mysql.com/doc/refman/8.4/en/information-schema-introduction.html", read: 2026-11-12 }
+  - { url: "https://dev.mysql.com/doc/refman/8.4/en/mysql-command-options.html", read: 2026-11-13 }
   - { url: "https://dev.mysql.com/doc/refman/8.4/en/identifier-case-sensitivity.html", read: 2026-11-12 }
   - { url: "https://dev.mysql.com/doc/refman/8.4/en/data-types.html", read: 2026-11-12 }
   - { url: "https://dev.mysql.com/doc/refman/8.4/en/numeric-type-syntax.html", read: 2026-11-12 }

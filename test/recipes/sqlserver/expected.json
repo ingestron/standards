@@ -264,6 +264,43 @@
         "sourceType": "sysname",
         "logicalType": "string",
         "required": true
+      },
+      {
+        "name": "c_time0",
+        "sourceType": "time(0)",
+        "logicalType": "time",
+        "required": false
+      },
+      {
+        "name": "c_datetime2_0",
+        "sourceType": "datetime2(0)",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "c_datetimeoffset7",
+        "sourceType": "datetimeoffset(7)",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "c_alias",
+        "sourceType": "nvarchar(12)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 12
+        },
+        "required": true
+      },
+      {
+        "name": "c_computed",
+        "sourceType": "decimal(14,2)",
+        "logicalType": "number",
+        "logicalTypeOptions": {
+          "precision": 14,
+          "scale": 2
+        },
+        "required": false
       }
     ]
   },

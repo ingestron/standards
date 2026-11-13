@@ -350,6 +350,48 @@
         "sourceType": "bpchar",
         "logicalType": "string",
         "required": false
+      },
+      {
+        "name": "c_bpchar_n",
+        "sourceType": "character(1)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 1
+        },
+        "required": false
+      },
+      {
+        "name": "c_domain",
+        "sourceType": "character varying(12)",
+        "logicalType": "string",
+        "logicalTypeOptions": {
+          "maxLength": 12
+        },
+        "required": false
+      },
+      {
+        "name": "c_numeric_array",
+        "sourceType": "numeric(5,2)[]",
+        "logicalType": "array",
+        "required": false
+      },
+      {
+        "name": "c_timestamptz_p",
+        "sourceType": "timestamp(3) with time zone",
+        "logicalType": "timestamp",
+        "required": false
+      },
+      {
+        "name": "c_timetz_p",
+        "sourceType": "time(2) with time zone",
+        "logicalType": "time",
+        "required": false
+      },
+      {
+        "name": "c_interval_ds",
+        "sourceType": "interval day to second(0)",
+        "logicalType": "string",
+        "required": false
       }
     ]
   },
