@@ -631,6 +631,11 @@ describe("the recipes", () => {
       assert.equal(recipe.ask.run, undefined);
       assert.equal(recipe.ask.call, undefined);
     });
+
+    it("gives an example file name, not a placeholder, so the request has nothing to fill in", () => {
+      assert.doesNotMatch(recipeOf("sample").ask.how, /\{object\}/);
+      assert.match(recipeOf("sample").ask.how, /such as orders\.json\./);
+    });
   });
 });
 
