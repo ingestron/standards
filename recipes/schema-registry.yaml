@@ -3,10 +3,10 @@ title: Kafka topics, through a schema registry
 kind: catalog
 inputs:
   registry: { description: "The URL of the schema registry, without a slash at the end, such as https://schemaregistry.example.com:8081" }
-  subject: { description: "The subject that holds a topic's schema, with {object} for the topic's name. The default is for topics that use the default naming (TopicNameStrategy). Give another, such as {object}-key or com.example.{object}, when the registry names subjects some other way", default: "{object}-value" }
+  subject: { description: "The subject that holds a topic's schema, with {object} for the topic's name. The default is for topics that use the default naming (TopicNameStrategy). Give another, such as {object}-com.example.Order for TopicRecordNameStrategy, when the registry names subjects some other way", default: "{object}-value" }
 ask:
   who: Someone who can read the schema registry that holds the topics' schemas, such as the Kafka platform team or the team that owns the topics
-  access: Permission to read the subjects of the topics the flows read. For Confluent Platform with role-based access control, the DeveloperRead role on each topic's value subject, such as orders-value, is enough. A registry secured with a user name and password, or on Confluent Cloud with an API key and secret, needs those credentials for every call. The response holds a schema, which is the topic's columns and types, and no messages.
+  access: Permission to read the subjects of the topics the flows read. For Confluent Platform with role-based access control, the DeveloperRead role on each topic's value subject, such as orders-value, is enough, and so is the same role on the subject the connection's subject input names. A registry secured with a user name and password, or on Confluent Cloud with an API key and secret, needs those credentials for every call. The response holds a schema, which is the topic's columns and types, and no messages.
   call: "{registry}/subjects/{subject}/versions/latest"
   save: sources/{connection}/{object}.json
   how: |

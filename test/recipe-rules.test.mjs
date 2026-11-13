@@ -24,11 +24,12 @@ describe("every recipe", () => {
       assert.ok(validate(parse(textOf(name))), JSON.stringify(validate.errors));
     });
 
-    it(`${name} holds only placeholders the request fills in or its inputs`, () => {
+    it(`${name} holds only placeholders the request fills in or its inputs, in its text and its defaults`, () => {
       const recipe = readSourceRecipe(textOf(name), `recipes/${name}`);
       const known = new Set(["connection", "object", "schemas", ...Object.keys(recipe.inputs)]);
       const { who, access, run, call, save, how } = recipe.ask;
-      for (const text of [who, access, run, call, save, how ?? ""])
+      const defaults = Object.values(recipe.inputs).map((input) => input.default ?? "");
+      for (const text of [who, access, run, call, save, how ?? "", ...defaults])
         for (const [, placeholder] of (text ?? "").matchAll(/\{([A-Za-z][A-Za-z0-9_]*)\}/g))
           assert.ok(known.has(placeholder), `{${placeholder}} is not a placeholder or an input`);
     });
@@ -36,15 +37,21 @@ describe("every recipe", () => {
 
   it("a recipe the schema or the reader should refuse is refused by both", () => {
     const base = textOf("oracle.yaml");
+    // The schema registry recipe has an input with a default.
+    const registry = textOf("schema-registry.yaml");
     const broken = [
       base.replace("kind: catalog", "kind: query"),
       base.replace("save: sources/", "save: output/"),
       base.replace("id: oracle", "id: Oracle"),
       base.replace(/\nsources:[\s\S]*$/, "\nsources: []\n"),
       `${base}colour: red\n`,
+      registry.replace('default: "{object}-value"', "default: [v1]"),
+      registry.replace('default: "{object}-value"', 'default: "{object}-value", example: x'),
     ];
     for (const text of broken) {
-      assert.throws(() => readSourceRecipe(text, "recipes/oracle.yaml"));
+      const id = /^id: (\S+)/m.exec(text)[1].toLowerCase();
+      // `id: Oracle` is read as the file oracle.yaml, the one case whose id is not its name.
+      assert.throws(() => readSourceRecipe(text, `recipes/${id}.yaml`));
       assert.equal(validate(parse(text)), false);
     }
   });

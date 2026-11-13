@@ -342,7 +342,18 @@ describe("the recipes", () => {
         const written = [`sources/${connection}.yaml`, "project.yaml"].map((name) =>
           readFileSync(join(project, name), "utf8"),
         );
-        for (const text of [printed, ...written]) assert.doesNotMatch(text, /ZZ-[A-Z]|Fabrikam/);
+        // Every file of the project but the results themselves, which hold the marked text.
+        const results = new Set(files.map(({ file }) => join(project, file)));
+        const others = (folder) =>
+          readdirSync(folder, { withFileTypes: true }).flatMap((entry) => {
+            const path = join(folder, entry.name);
+            if (entry.isDirectory()) return others(path);
+            return results.has(path) ? [] : [readFileSync(path, "utf8")];
+          });
+        const everything = others(project);
+        assert.ok(everything.length >= 4, "the project's own files are searched");
+        for (const text of [printed, ...written, ...everything])
+          assert.doesNotMatch(text, /ZZ-[A-Z]|Fabrikam/);
         assert.ok(written[0].includes("tables:"));
         assert.ok(written[1].includes(`sources/${connection}.yaml`));
         const leftovers = readdirSync(join(project, "sources")).filter((name) => name.endsWith(".tmp"));
