@@ -77,13 +77,21 @@
         "name": "c_money",
         "sourceType": "money",
         "logicalType": "number",
-        "required": false
+        "required": false,
+        "logicalTypeOptions": {
+          "precision": 19,
+          "scale": 4
+        }
       },
       {
         "name": "c_smallmoney",
         "sourceType": "smallmoney",
         "logicalType": "number",
-        "required": false
+        "required": false,
+        "logicalTypeOptions": {
+          "precision": 10,
+          "scale": 4
+        }
       },
       {
         "name": "c_float",
@@ -374,7 +382,11 @@
         "name": "UnitPrice",
         "sourceType": "money",
         "logicalType": "number",
-        "required": true
+        "required": true,
+        "logicalTypeOptions": {
+          "precision": 19,
+          "scale": 4
+        }
       }
     ]
   }

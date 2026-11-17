@@ -44,38 +44,97 @@ ask:
 read: columns
 names: { parts: 3, caseSensitive: false }
 types:
-  - { match: '^bit$', logicalType: boolean }
-  - { match: '^(tinyint|smallint|int|bigint)$', logicalType: integer }
+  - { match: "^bit$", logicalType: boolean }
+  - { match: "^(tinyint|smallint|int|bigint)$", logicalType: integer }
   - {
       match: '^(decimal|numeric)\((\d+),(\d+)\)$',
       logicalType: number,
       options: { precision: $2, scale: $3 },
     }
-  - { match: '^(decimal|numeric|money|smallmoney|float|real)$', logicalType: number }
-  - { match: '^date$', logicalType: date }
-  - { match: '^(datetime|smalldatetime)$', logicalType: timestamp }
+  - {
+      match: "^money$",
+      logicalType: number,
+      options: { precision: 19, scale: 4 },
+    }
+  - {
+      match: "^smallmoney$",
+      logicalType: number,
+      options: { precision: 10, scale: 4 },
+    }
+  - { match: "^(decimal|numeric|float|real)$", logicalType: number }
+  - { match: "^date$", logicalType: date }
+  - { match: "^(datetime|smalldatetime)$", logicalType: timestamp }
   - { match: '^(datetime2|datetimeoffset)(\(\d+\))?$', logicalType: timestamp }
   - { match: '^time(\(\d+\))?$', logicalType: time }
-  - { match: '^(n?char|n?varchar)\((\d+)\)$', logicalType: string, options: { maxLength: $2 } }
+  - {
+      match: '^(n?char|n?varchar)\((\d+)\)$',
+      logicalType: string,
+      options: { maxLength: $2 },
+    }
   - { match: '^(n?char|n?varchar)(\(max\))?$', logicalType: string }
-  - { match: '^(text|ntext|sysname)$', logicalType: string }
+  - { match: "^(text|ntext|sysname)$", logicalType: string }
   - { match: '^(binary|varbinary)(\((\d+|max)\))?$', logicalType: string }
-  - { match: '^(image|rowversion|timestamp)$', logicalType: string }
-  - { match: '^(uniqueidentifier|xml|geography|geometry|hierarchyid|sql_variant)$', logicalType: string }
-  - { match: '^json$', logicalType: object }
+  - { match: "^(image|rowversion|timestamp)$", logicalType: string }
+  - {
+      match: "^(uniqueidentifier|xml|geography|geometry|hierarchyid|sql_variant)$",
+      logicalType: string,
+    }
+  - { match: "^json$", logicalType: object }
   - { match: '^vector(\(\d+\))?$', logicalType: array }
 sources:
-  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-columns-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
-  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-types-transact-sql?view=sql-server-ver17", read: 2026-11-13 }
-  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-objects-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
-  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/schemas-catalog-views-sys-schemas?view=sql-server-ver17", read: 2026-11-12 }
-  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-indexes-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
-  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-index-columns-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
-  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/security/metadata-visibility-configuration?view=sql-server-ver17", read: 2026-11-12 }
-  - { url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-information-schema-views/columns-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
-  - { url: "https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
-  - { url: "https://learn.microsoft.com/en-us/sql/t-sql/data-types/rowversion-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
-  - { url: "https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17", read: 2026-11-12 }
-  - { url: "https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver17", read: 2026-11-13 }
-  - { url: "https://learn.microsoft.com/en-us/powershell/module/sqlserver/invoke-sqlcmd?view=sqlserver-ps", read: 2026-11-13 }
-  - { url: "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/export-csv?view=powershell-7.5", read: 2026-11-13 }
+  - {
+      url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-columns-transact-sql?view=sql-server-ver17",
+      read: 2026-11-12,
+    }
+  - {
+      url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-types-transact-sql?view=sql-server-ver17",
+      read: 2026-11-13,
+    }
+  - {
+      url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-objects-transact-sql?view=sql-server-ver17",
+      read: 2026-11-12,
+    }
+  - {
+      url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/schemas-catalog-views-sys-schemas?view=sql-server-ver17",
+      read: 2026-11-12,
+    }
+  - {
+      url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-indexes-transact-sql?view=sql-server-ver17",
+      read: 2026-11-12,
+    }
+  - {
+      url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-catalog-views/sys-index-columns-transact-sql?view=sql-server-ver17",
+      read: 2026-11-12,
+    }
+  - {
+      url: "https://learn.microsoft.com/en-us/sql/relational-databases/security/metadata-visibility-configuration?view=sql-server-ver17",
+      read: 2026-11-12,
+    }
+  - {
+      url: "https://learn.microsoft.com/en-us/sql/relational-databases/system-information-schema-views/columns-transact-sql?view=sql-server-ver17",
+      read: 2026-11-12,
+    }
+  - {
+      url: "https://learn.microsoft.com/en-us/sql/t-sql/data-types/data-types-transact-sql?view=sql-server-ver17",
+      read: 2026-11-12,
+    }
+  - {
+      url: "https://learn.microsoft.com/en-us/sql/t-sql/data-types/rowversion-transact-sql?view=sql-server-ver17",
+      read: 2026-11-12,
+    }
+  - {
+      url: "https://learn.microsoft.com/en-us/sql/t-sql/data-types/datetime2-transact-sql?view=sql-server-ver17",
+      read: 2026-11-12,
+    }
+  - {
+      url: "https://learn.microsoft.com/en-us/sql/tools/sqlcmd/sqlcmd-utility?view=sql-server-ver17",
+      read: 2026-11-13,
+    }
+  - {
+      url: "https://learn.microsoft.com/en-us/powershell/module/sqlserver/invoke-sqlcmd?view=sqlserver-ps",
+      read: 2026-11-13,
+    }
+  - {
+      url: "https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/export-csv?view=powershell-7.5",
+      read: 2026-11-13,
+    }
